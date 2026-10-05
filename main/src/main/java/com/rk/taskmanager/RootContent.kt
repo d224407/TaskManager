@@ -16,6 +16,7 @@ import com.rk.taskmanager.settings.About
 import com.rk.taskmanager.settings.DaemonSettings
 import com.rk.taskmanager.settings.GraphSettings
 import com.rk.taskmanager.settings.ProcSettings
+import com.rk.taskmanager.settings.ProVersion
 import com.rk.taskmanager.settings.SelectedWorkingMode
 import com.rk.commons.settings.Settings
 import com.rk.taskmanager.settings.SettingsRoutes
@@ -76,6 +77,9 @@ fun MainActivity.RootContent(modifier: Modifier = Modifier) {
                     About()
                 }
 
+                composable(SettingsRoutes.ProVersion.route){
+                    ProVersion()
+                }
 
                 composable("proc/{pid}") {
                     val pid = it.arguments?.getString("pid")!!.toInt()

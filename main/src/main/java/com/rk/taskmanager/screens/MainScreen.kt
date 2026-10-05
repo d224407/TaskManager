@@ -1,14 +1,20 @@
 package com.rk.taskmanager.screens
 
+import android.Manifest
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
+import android.content.pm.PackageManager
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.NotificationsOff
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -32,11 +38,14 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.startForegroundService
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.rk.taskmanager.R
+import com.rk.taskmanager.TaskManagerNotificationService
 import com.rk.taskmanager.MainActivity
 import com.rk.taskmanager.ProcessViewModel
 import com.rk.taskmanager.components.ProcessSearchBar
@@ -67,6 +76,7 @@ fun Context.openAppSettings() {
 fun MainScreen(modifier: Modifier = Modifier, navController: NavController, viewModel: ProcessViewModel,gpuViewModel: GpuViewModel) {
 
     val context = LocalContext.current
+    var notificationRunning by remember { mutableStateOf(false) }
     if (isConnected) {
         Scaffold(
             modifier = modifier.fillMaxSize(),
@@ -76,6 +86,33 @@ fun MainScreen(modifier: Modifier = Modifier, navController: NavController, view
                         TopAppBar(
                             title = { Text(stringResource(strings.app_name)) },
                             actions = {
+                                IconButton(
+                                    modifier = Modifier.padding(8.dp),
+                                    onClick = {
+                                        if (notificationRunning) {
+                                            context.stopService(Intent(context, TaskManagerNotificationService::class.java))
+                                            notificationRunning = false
+                                            return@IconButton
+                                        }
+                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                                            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                                            (context as? Activity)?.requestPermissions(
+                                                arrayOf(Manifest.permission.POST_NOTIFICATIONS), 7001
+                                            )
+                                            Toast.makeText(context, "Grant notification permission, then try again.", Toast.LENGTH_SHORT).show()
+                                            return@IconButton
+                                        }
+                                        val intent = Intent(context, TaskManagerNotificationService::class.java)
+                                        ContextCompat.startForegroundService(context, intent)
+                                        notificationRunning = true
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = if (notificationRunning) Icons.Filled.NotificationsOff else Icons.Filled.Notifications,
+                                        contentDescription = "Toggle monitoring notification"
+                                    )
+                                }
+
                                 IconButton(
                                     modifier = Modifier.padding(8.dp),
                                     onClick = {

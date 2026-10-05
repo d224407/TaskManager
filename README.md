@@ -1,7 +1,7 @@
 
 ## Core-only build
 
-This working tree intentionally excludes the experimental `taskmanager_pro`/billing module. The core build contains the open-source Task Manager functionality, including Root/Shizuku daemon support and CPU/RAM/GPU monitoring. Pro can be reintroduced later through the existing architecture.
+This working tree intentionally excludes the experimental `optional Pro module`/billing module. The core build contains the open-source Task Manager functionality, including Root/Shizuku daemon support and CPU/RAM/GPU monitoring. Pro can be reintroduced later through the existing architecture.
 
 # TaskManager
 **Task Manager** is tool for android inspired from gnome system monitor

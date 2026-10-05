@@ -97,6 +97,17 @@ fun SettingsScreen(modifier: Modifier = Modifier, navController: NavController) 
         )
 
         PreferenceCategory(
+            label = "Pro features",
+            description = "Experimental Pro features enabled for testing (no payment)",
+            startWidget = {
+                Icon(Icons.Outlined.Star, null, tint = MaterialTheme.colorScheme.primary)
+            },
+            onNavigate = {
+                navController.navigate(SettingsRoutes.ProVersion.route)
+            },
+        )
+
+        PreferenceCategory(
             label = stringResource(strings.about),
             description = stringResource(strings.about_desc),
             startWidget = {

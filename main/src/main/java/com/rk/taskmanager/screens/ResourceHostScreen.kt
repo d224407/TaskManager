@@ -24,6 +24,8 @@ import com.rk.taskmanager.screens.cpu.CPU
 import com.rk.taskmanager.screens.gpu.GPU
 import com.rk.taskmanager.screens.gpu.GpuViewModel
 import com.rk.taskmanager.screens.ram.RAM
+import com.rk.taskmanager.screens.NetworkScreen
+import com.rk.taskmanager.screens.BatteryScreen
 import com.rk.commons.strings
 
 private data class ResourceTab(
