@@ -70,7 +70,21 @@ private val tabs = listOf(
         }
     ),
 
+    ResourceTab(
+        labelRes = R.string.pro_network,
+        icon = TabIcon.Res(R.drawable.cpu_24px),
+        content = { modifier, _, _ ->
+            NetworkScreen(modifier)
+        }
+    ),
 
+    ResourceTab(
+        labelRes = R.string.pro_battery,
+        icon = TabIcon.Res(R.drawable.memory_alt_24px),
+        content = { modifier, _, _ ->
+            BatteryScreen(modifier)
+        }
+    ),
 
 )
 
