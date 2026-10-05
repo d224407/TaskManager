@@ -1,0 +1,34 @@
+plugins {
+    alias(libs.plugins.androidLibrary)
+    alias(libs.plugins.compose.compiler)
+}
+
+android {
+    namespace = "org.robok.engine.core.components"
+    compileSdk = 36
+
+    defaultConfig {
+        minSdk = 24
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildFeatures {
+        viewBinding = true
+        compose = true
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    implementation(libs.appcompat)
+    implementation(platform(libs.compose.bom))
+    implementation(libs.material3)
+    implementation(libs.ui)
+    implementation(libs.ui.graphics)
+    implementation(libs.activity.compose)
+    implementation(libs.androidx.material.icons.extended)
+}

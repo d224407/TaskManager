@@ -1,59 +1,122 @@
+import java.util.Properties
+
+val isIzzyOrFdroid = false
+
 plugins {
-    alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.androidApplication)
+    alias(libs.plugins.compose.compiler)
+
+    alias(libs.plugins.baselineprofile)
 }
 
+
 android {
-    namespace = "com.rk.taskmanager"
-    compileSdk = 34
+    namespace = "com.rk.taskmanager.app"
+    compileSdk = 36
 
-    defaultConfig {
-        applicationId = "com.rk.taskmanager"
-        minSdk = 24
-        targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
-
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    lint {
+        disable += "MissingTranslation"
     }
+
+    dependenciesInfo {
+        includeInApk = isIzzyOrFdroid.not()
+        includeInBundle = isIzzyOrFdroid.not()
+    }
+
+    signingConfigs {
+        create("release") {
+            val isGITHUB_ACTION = System.getenv("GITHUB_ACTIONS") == "true"
+
+            if (isGITHUB_ACTION) {
+                // ---- GitHub Actions: đọc trực tiếp từ env ----
+                val keystorePath = System.getenv("KEYSTORE_FILE") ?: "/tmp/xed.keystore"
+                val keystoreFile = File(keystorePath)
+
+                if (keystoreFile.exists()) {
+                    storeFile = keystoreFile
+                    storePassword = System.getenv("KEYSTORE_PASSWORD")
+                    keyAlias = System.getenv("KEY_ALIAS")
+                    keyPassword = System.getenv("KEY_PASSWORD")
+                } else {
+                    println("Keystore file not found at $keystorePath")
+                }
+            } else {
+                // ---- Local build: đọc từ signing.properties ----
+                val propertiesFilePath = "/home/rohit/Android/xed-signing/signing.properties"
+                val propertiesFile = File(propertiesFilePath)
+
+                if (propertiesFile.exists()) {
+                    val properties = Properties()
+                    properties.load(propertiesFile.inputStream())
+                    keyAlias = properties["keyAlias"] as String?
+                    keyPassword = properties["keyPassword"] as String?
+                    storeFile = (properties["storeFile"] as String?)?.let { File(it) }
+                    storePassword = properties["storePassword"] as String?
+                } else {
+                    println("Signing properties file not found at $propertiesFilePath")
+                }
+            }
+        }
+    }
+
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = isIzzyOrFdroid.not()
+            isCrunchPngs = isIzzyOrFdroid.not()
+            isShrinkResources = isIzzyOrFdroid.not()
+
             proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("release")
+        }
+        debug {
+            versionNameSuffix = "-DEBUG"
         }
     }
+
+    defaultConfig {
+        applicationId = "com.rk.taskmanager"
+        minSdk = 26
+        targetSdk = 37
+
+        //versioning
+        versionCode = 52
+        versionName = "1.5.2"
+        vectorDrawables {
+            useSupportLibrary = true
+        }
+    }
+
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
+        // isCoreLibraryDesugaringEnabled = true
     }
-    kotlinOptions {
-        jvmTarget = "1.8"
+    packaging {
+        jniLibs {
+            useLegacyPackaging = true
+        }
     }
+
     buildFeatures {
+        viewBinding = true
         compose = true
     }
 }
 
-dependencies {
+tasks.whenTaskAdded {
+    if (isIzzyOrFdroid && name.contains("ArtProfile")) {
+        println("Skipped Task $name")
+        enabled = false
+    }
+}
 
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(libs.androidx.activity.compose)
-    implementation(platform(libs.androidx.compose.bom))
-    implementation(libs.androidx.ui)
-    implementation(libs.androidx.ui.graphics)
-    implementation(libs.androidx.ui.tooling.preview)
-    implementation(libs.androidx.material3)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.ui.test.junit4)
-    debugImplementation(libs.androidx.ui.tooling)
-    debugImplementation(libs.androidx.ui.test.manifest)
+dependencies {
+    implementation(libs.androidx.profileinstaller)
+    "baselineProfile"(project(":baselineprofile"))
+
+    implementation(libs.androidx.room.ktx)
+    implementation(project(":main"))
 }
