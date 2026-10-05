@@ -1,6 +1,7 @@
 package com.rk.taskmanager.settings
 
-import androidx.activity.compose.LocalActivity
+import androidx.compose.ui.platform.LocalContext
+import android.app.Activity
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -14,15 +15,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProVersion(modifier: Modifier = Modifier) {
-    val activity = LocalActivity.current
+    val context = LocalContext.current
+    val activity = context as? Activity
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("Pro features") },
                 navigationIcon = {
-                    IconButton(onClick = { activity?.onBackPressedDispatcher?.onBackPressed() }) {
+                    IconButton(onClick = { activity?.finish() }) {
                         Text("‹", style = MaterialTheme.typography.headlineMedium)
                     }
                 }
