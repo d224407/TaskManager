@@ -26,6 +26,7 @@ import com.rk.taskmanager.screens.gpu.GpuViewModel
 import com.rk.taskmanager.screens.ram.RAM
 import com.rk.taskmanager.screens.NetworkScreen
 import com.rk.taskmanager.screens.BatteryScreen
+import com.rk.taskmanager.screens.DiskScreen
 import com.rk.commons.strings
 
 private data class ResourceTab(
@@ -83,6 +84,14 @@ private val tabs = listOf(
         icon = TabIcon.Res(R.drawable.memory_alt_24px),
         content = { modifier, _, _ ->
             BatteryScreen(modifier)
+        }
+    ),
+
+    ResourceTab(
+        labelRes = R.string.pro_disk,
+        icon = TabIcon.Res(R.drawable.memory_alt_24px),
+        content = { modifier, _, _ ->
+            DiskScreen(modifier)
         }
     ),
 

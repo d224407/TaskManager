@@ -97,8 +97,8 @@ fun SettingsScreen(modifier: Modifier = Modifier, navController: NavController) 
         )
 
         PreferenceCategory(
-            label = "Pro features",
-            description = "Experimental Pro features enabled for testing (no payment)",
+            label = "Advanced features",
+            description = "Network, battery, disk and process tools",
             startWidget = {
                 Icon(Icons.Outlined.Star, null, tint = MaterialTheme.colorScheme.primary)
             },

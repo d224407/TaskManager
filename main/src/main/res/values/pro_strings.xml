@@ -2,4 +2,5 @@
 <resources>
     <string name="pro_network">Network</string>
     <string name="pro_battery">Battery</string>
+    <string name="pro_disk">Disk</string>
 </resources>

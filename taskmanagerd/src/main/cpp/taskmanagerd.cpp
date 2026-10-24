@@ -515,6 +515,25 @@ void processCommand(const std::string &received) {
             j_out["type"] = "NET_INTERFACE_LIST";
             j_out["interfaces"] = interfaces_j;
             send_json(j_out);
+        } else if (cmd == "DISK_PING") {
+            std::ifstream diskstats("/proc/diskstats");
+            std::string line;
+            json devices = json::array();
+            while (std::getline(diskstats, line)) {
+                std::istringstream iss(line);
+                int major = 0, minor = 0;
+                std::string name;
+                unsigned long long reads = 0, readsMerged = 0, sectorsRead = 0, readMs = 0;
+                unsigned long long writes = 0, writesMerged = 0, sectorsWritten = 0, writeMs = 0;
+                if (!(iss >> major >> minor >> name >> reads >> readsMerged >> sectorsRead >> readMs
+                          >> writes >> writesMerged >> sectorsWritten >> writeMs)) continue;
+                if (name.rfind("loop", 0) == 0 || name.rfind("ram", 0) == 0) continue;
+                devices.push_back({{"name", name}, {"readBytes", sectorsRead * 512ULL},
+                                   {"writeBytes", sectorsWritten * 512ULL}});
+            }
+            j_out["type"] = "DISK_STATS";
+            j_out["devices"] = devices;
+            send_json(j_out);
         } else if (cmd == "NET_PING") {
             std::string iface = j_in.value("interface", "");
             auto now = std::chrono::steady_clock::now();
