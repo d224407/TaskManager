@@ -3,14 +3,17 @@ plugins {
     alias(libs.plugins.compose.compiler)
     id("com.google.devtools.ksp")
 }
-val gitCommitHash: Provider<String> =
-    providers.exec { commandLine("git", "rev-parse", "--short=8", "HEAD") }.standardOutput.asText.map { it.trim() }
+// Falls back to "unknown" when git is missing or the tree is not a repo (e.g. source zip)
+fun gitOutput(vararg args: String): String = runCatching {
+    providers.exec {
+        commandLine("git", *args)
+        isIgnoreExitValue = true
+    }.standardOutput.asText.get().trim()
+}.getOrDefault("").ifEmpty { "unknown" }
 
-val fullGitCommitHash: Provider<String> =
-    providers.exec { commandLine("git", "rev-parse", "HEAD") }.standardOutput.asText.map { it.trim() }
-
-val gitCommitDate: Provider<String> =
-    providers.exec { commandLine("git", "show", "-s", "--format=%cI", "HEAD") }.standardOutput.asText.map { it.trim() }
+val gitCommitHash = gitOutput("rev-parse", "--short=8", "HEAD")
+val fullGitCommitHash = gitOutput("rev-parse", "HEAD")
+val gitCommitDate = gitOutput("show", "-s", "--format=%cI", "HEAD")
 
 
 android {
@@ -41,14 +44,14 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            buildConfigField("String", "GIT_COMMIT_HASH", "\"${fullGitCommitHash.get()}\"")
-            buildConfigField("String", "GIT_SHORT_COMMIT_HASH", "\"${gitCommitHash.get()}\"")
-            buildConfigField("String", "GIT_COMMIT_DATE", "\"${gitCommitDate.get()}\"")
+            buildConfigField("String", "GIT_COMMIT_HASH", "\"$fullGitCommitHash\"")
+            buildConfigField("String", "GIT_SHORT_COMMIT_HASH", "\"$gitCommitHash\"")
+            buildConfigField("String", "GIT_COMMIT_DATE", "\"$gitCommitDate\"")
         }
         debug {
-            buildConfigField("String", "GIT_COMMIT_HASH", "\"${fullGitCommitHash.get()}\"")
-            buildConfigField("String", "GIT_SHORT_COMMIT_HASH", "\"${gitCommitHash.get()}\"")
-            buildConfigField("String", "GIT_COMMIT_DATE", "\"${gitCommitDate.get()}\"")
+            buildConfigField("String", "GIT_COMMIT_HASH", "\"$fullGitCommitHash\"")
+            buildConfigField("String", "GIT_SHORT_COMMIT_HASH", "\"$gitCommitHash\"")
+            buildConfigField("String", "GIT_COMMIT_DATE", "\"$gitCommitDate\"")
         }
     }
     compileOptions {
@@ -70,32 +73,15 @@ dependencies {
     implementation(libs.shizuku.api)
     implementation(libs.shizuku.provider)
     implementation(libs.vico.compose.m3)
+    implementation(libs.vico.compose)
     implementation(project(":components"))
-    implementation(libs.accompanist.swiperefresh)
-    implementation(libs.material)
-    implementation(libs.material3)
     implementation(project(":taskmanagerd"))
-    implementation(libs.androidx.javascriptengine)
+    implementation(libs.material)
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.coil.compose)
-    implementation(libs.coil.svg)
-
-
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.core.ktx)
     implementation(libs.appcompat)
-    implementation(libs.material)
-    implementation(project(":components"))
-    
-    // Compose
-    implementation(platform(libs.compose.bom))
-    implementation(libs.ui)
-    implementation(libs.ui.graphics)
-    implementation(libs.material3)
-    
-    // Vico
-    implementation(libs.vico.compose.m3)
-    implementation(libs.vico.compose)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)

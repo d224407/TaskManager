@@ -20,6 +20,7 @@ class TaskManagerNotificationService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        isRunning = true
         createChannel()
         startForeground(NOTIFICATION_ID, buildNotification())
         scope.launch {
@@ -71,7 +72,17 @@ class TaskManagerNotificationService : Service() {
         )
     }
 
+    // dataSync services are time limited on Android 15+, stop instead of crashing
+    override fun onTimeout(startId: Int, fgsType: Int) {
+        stopSelf()
+    }
+
+    override fun onTimeout(startId: Int) {
+        stopSelf()
+    }
+
     override fun onDestroy() {
+        isRunning = false
         scope.cancel()
         super.onDestroy()
     }
@@ -81,5 +92,9 @@ class TaskManagerNotificationService : Service() {
     companion object {
         const val CHANNEL_ID = "task_manager_monitor"
         const val NOTIFICATION_ID = 1001
+
+        @Volatile
+        var isRunning = false
+            private set
     }
 }

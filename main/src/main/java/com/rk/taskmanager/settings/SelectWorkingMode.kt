@@ -90,11 +90,16 @@ fun SelectedWorkingMode(modifier: Modifier = Modifier, navController: NavControl
                                     withContext(Dispatchers.Main) {
                                         when (daemonResult) {
                                             DaemonResult.OK -> {
-                                                navController.navigate(SettingsRoutes.Home.route)
+                                                // Return to the existing Home instead of stacking another one
+                                                if (!navController.popBackStack(SettingsRoutes.Home.route, false)) {
+                                                    navController.navigate(SettingsRoutes.Home.route) {
+                                                        popUpTo(SettingsRoutes.SelectWorkingMode.route) { inclusive = true }
+                                                    }
+                                                }
                                             }
 
                                             else -> {
-                                                message = daemonResult.message.toString()
+                                                message = daemonResult.message ?: ""
                                             }
                                         }
                                     }
@@ -116,14 +121,13 @@ fun SelectedWorkingMode(modifier: Modifier = Modifier, navController: NavControl
                 }
             }
 
-            if (isNoob) {
-                message = stringResource(strings.noob)
-            }
+            val noobMessage = stringResource(strings.noob)
+            val shownMessage = message.ifEmpty { if (isNoob) noobMessage else "" }
 
-            if (message.isNotEmpty()) {
+            if (shownMessage.isNotEmpty()) {
                 Spacer(modifier = Modifier.padding(16.dp))
                 PreferenceGroup(heading = stringResource(strings.info)) {
-                    SettingsToggle(description = message, default = false, showSwitch = false)
+                    SettingsToggle(description = shownMessage, default = false, showSwitch = false)
                 }
             }
         }

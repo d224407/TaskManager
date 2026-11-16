@@ -10,7 +10,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
-import androidx.compose.animation.with
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -125,7 +125,7 @@ fun ProcessSearchBar(
                         AnimatedContent(
                             targetState = expanded,
                             transitionSpec = {
-                                fadeIn(animationSpec = tween(300)) + scaleIn(tween(300)) + rotateIn() with
+                                fadeIn(animationSpec = tween(300)) + scaleIn(tween(300)) + rotateIn() togetherWith
                                         fadeOut(tween(300)) + scaleOut(tween(300)) + rotateOut()
                             }
                         ) { targetExpanded ->

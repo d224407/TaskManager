@@ -3,6 +3,7 @@ package com.rk.taskmanager
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
@@ -81,20 +82,16 @@ fun MainActivity.RootContent(modifier: Modifier = Modifier) {
                     ProVersion()
                 }
 
-                composable("proc/{pid}") {
-                    val pid = it.arguments?.getString("pid")!!.toInt()
-                    val proc = procByPid[pid]?.get()
+                composable("proc/{pid}") { entry ->
+                    val proc = entry.arguments?.getString("pid")?.toIntOrNull()?.let { procByPid[it] }
+                    val killedOnEntry = remember { proc?.killed?.value == true }
 
-                    if (proc != null) {
+                    if (proc == null || killedOnEntry) {
                         LaunchedEffect(Unit) {
-                            if (proc.killed.value){
-                                navController.popBackStack()
-                                return@LaunchedEffect
-                            }
+                            navController.popBackStack()
                         }
+                    } else {
                         ProcessInfo(proc = proc, navController = navController, viewModel = viewModel)
-                    }else{
-                        navController.popBackStack()
                     }
                 }
             }

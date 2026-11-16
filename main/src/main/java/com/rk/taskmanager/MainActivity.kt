@@ -44,12 +44,18 @@ class MainActivity : ComponentActivity() {
         instance = this
 
 
-        GlobalScope.launch { graphUpdater(this@MainActivity) }
+        GlobalScope.launch { graphUpdater() }
 
 
         setContent {
             RootContent()
         }
+    }
+
+    override fun onDestroy() {
+        if (instance === this) instance = null
+        if (scope === lifecycleScope) scope = null
+        super.onDestroy()
     }
 
     override fun onResume() {

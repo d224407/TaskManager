@@ -53,6 +53,7 @@ class GpuViewModel(application: Application) : AndroidViewModel(application) {
 
             val configAttribs = intArrayOf(
                 EGL14.EGL_RENDERABLE_TYPE, EGL14.EGL_OPENGL_ES2_BIT,
+                EGL14.EGL_SURFACE_TYPE, EGL14.EGL_PBUFFER_BIT,
                 EGL14.EGL_NONE
             )
 
@@ -62,18 +63,26 @@ class GpuViewModel(application: Application) : AndroidViewModel(application) {
             EGL14.eglChooseConfig(display, configAttribs, 0, configs, 0, 1, numConfigs, 0)
             if (numConfigs[0] <= 0 || configs[0] == null) return null
 
-            val contextAttribs = intArrayOf(
-                EGL14.EGL_CONTEXT_CLIENT_VERSION, 3, // Try ES3
-                EGL14.EGL_NONE
-            )
-
-            val context = EGL14.eglCreateContext(
+            var context = EGL14.eglCreateContext(
                 display,
                 configs[0],
                 EGL14.EGL_NO_CONTEXT,
-                contextAttribs,
+                intArrayOf(EGL14.EGL_CONTEXT_CLIENT_VERSION, 3, EGL14.EGL_NONE), // Try ES3
                 0
             )
+            if (context == EGL14.EGL_NO_CONTEXT) {
+                context = EGL14.eglCreateContext(
+                    display,
+                    configs[0],
+                    EGL14.EGL_NO_CONTEXT,
+                    intArrayOf(EGL14.EGL_CONTEXT_CLIENT_VERSION, 2, EGL14.EGL_NONE), // ES2 fallback
+                    0
+                )
+            }
+            if (context == EGL14.EGL_NO_CONTEXT) {
+                EGL14.eglTerminate(display)
+                return null
+            }
 
             val surfaceAttribs = intArrayOf(
                 EGL14.EGL_WIDTH, 1,

@@ -16,11 +16,14 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.json.JSONObject
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.time.Duration.Companion.milliseconds
 
-private var isPingerRunner = false
+// Collector and pinger must exist once per process, not once per activity
+private val graphUpdaterStarted = AtomicBoolean(false)
 
-suspend fun CoroutineScope.graphUpdater(activity: MainActivity){
+suspend fun CoroutineScope.graphUpdater(){
+    if (!graphUpdaterStarted.compareAndSet(false, true)) return
     val graphMutex = Mutex()
     launch(Dispatchers.Default) {
         daemon_messages.collect { message ->
@@ -49,15 +52,14 @@ suspend fun CoroutineScope.graphUpdater(activity: MainActivity){
         }
     }
 
-    if (!isPingerRunner){
+    run {
         launch(Dispatchers.IO) {
-            isPingerRunner = true
             var hasSupportedGPU = false
 
             while (isActive) {
                 if (isConnected) {
                     if (!hasSupportedGPU) {
-                        hasSupportedGPU = activity.gpuViewModel.gpuInfo.value?.renderer?.let { renderer ->
+                        hasSupportedGPU = MainActivity.instance?.gpuViewModel?.gpuInfo?.value?.renderer?.let { renderer ->
                             renderer.contains("mali", true) || renderer.contains("adreno", true)
                         } ?: false
                     }

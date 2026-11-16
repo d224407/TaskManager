@@ -22,7 +22,7 @@ import java.util.Date
 import java.util.Locale
 
 val daemon_messages = DaemonServer.received_messages.asSharedFlow()
-val send_daemon_messages = MutableSharedFlow<String>(extraBufferCapacity = 10, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+val send_daemon_messages = MutableSharedFlow<String>(extraBufferCapacity = 64, onBufferOverflow = BufferOverflow.DROP_OLDEST)
 var isConnected by mutableStateOf(false)
     private set
 
@@ -31,10 +31,12 @@ object DaemonServer {
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     val received_messages =
-        MutableSharedFlow<String>(extraBufferCapacity = 10, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+        MutableSharedFlow<String>(extraBufferCapacity = 64, onBufferOverflow = BufferOverflow.DROP_OLDEST)
 
     private var readerJob: Job? = null
     private var writerJob: Job? = null
+
+    val isRunning: Boolean get() = readerJob?.isActive == true
 
     private fun log(msg: String) {
         val ts = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).format(Date())
@@ -58,6 +60,7 @@ object DaemonServer {
     }
 
     private fun startHandling(input: InputStream, output: OutputStream) {
+        writerJob?.cancel()
         readerJob = scope.launch {
             isConnected = true
             log("Daemon I/O started")

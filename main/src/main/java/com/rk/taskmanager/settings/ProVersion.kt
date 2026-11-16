@@ -1,7 +1,9 @@
 package com.rk.taskmanager.settings
 
-import androidx.compose.ui.platform.LocalContext
-import android.app.Activity
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.ui.res.stringResource
+import com.rk.commons.strings
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -19,15 +21,17 @@ import androidx.compose.ui.unit.dp
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProVersion(modifier: Modifier = Modifier) {
-    val context = LocalContext.current
-    val activity = context as? Activity
+    val backDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("Advanced features") },
                 navigationIcon = {
-                    IconButton(onClick = { activity?.finish() }) {
-                        Text("‹", style = MaterialTheme.typography.headlineMedium)
+                    IconButton(onClick = { backDispatcher?.onBackPressed() }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(strings.go_back)
+                        )
                     }
                 }
             )
@@ -37,7 +41,7 @@ fun ProVersion(modifier: Modifier = Modifier) {
             modifier = modifier.padding(padding).verticalScroll(rememberScrollState()).padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-                        Feature(Icons.Outlined.BatteryChargingFull, "Battery statistics", "Read the device battery charge-cycle counter.")
+            Feature(Icons.Outlined.BatteryChargingFull, "Battery statistics", "Read the device battery charge-cycle counter.")
             Feature(Icons.Outlined.NetworkCheck, "Network monitor", "Monitor RX/TX totals and per-interface transfer rates.")
             Feature(Icons.Outlined.Storage, "Disk monitor", "Track read and written data for storage devices since boot.")
             Feature(Icons.Outlined.PushPin, "Process pinning", "Keep selected processes at the top of the process list.")

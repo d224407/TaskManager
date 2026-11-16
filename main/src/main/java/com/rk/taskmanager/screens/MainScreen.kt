@@ -47,7 +47,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.rk.taskmanager.R
 import com.rk.taskmanager.TaskManagerNotificationService
-import com.rk.taskmanager.MainActivity
 import com.rk.taskmanager.ProcessViewModel
 import com.rk.taskmanager.components.ProcessSearchBar
 import com.rk.taskmanager.daemon.DaemonResult
@@ -77,7 +76,7 @@ fun Context.openAppSettings() {
 fun MainScreen(modifier: Modifier = Modifier, navController: NavController, viewModel: ProcessViewModel,gpuViewModel: GpuViewModel) {
 
     val context = LocalContext.current
-    var notificationRunning by remember { mutableStateOf(false) }
+    var notificationRunning by remember { mutableStateOf(TaskManagerNotificationService.isRunning) }
     if (isConnected) {
         Scaffold(
             modifier = modifier.fillMaxSize(),
@@ -222,7 +221,7 @@ fun MainScreen(modifier: Modifier = Modifier, navController: NavController, view
         LaunchedEffect(Unit) {
             if (Settings.workingMode != -1) {
                 scope.launch(Dispatchers.Main) {
-                    val daemonResult = startDaemon(context = MainActivity.instance!!, Settings.workingMode)
+                    val daemonResult = startDaemon(context = context, Settings.workingMode)
                     if (daemonResult != DaemonResult.OK) {
                         delay(2000)
                         if (isConnected.not()){

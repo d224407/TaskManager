@@ -68,13 +68,20 @@ class ProcessViewModel : ViewModel() {
     private val _procCount = MutableStateFlow(0)
     val procCount = _procCount.asStateFlow()
 
+    // Sorting reads this instead of the per-item MutableState so a pin change re-sorts
+    private val _pinned = MutableStateFlow(Settings.pinnedProcesses)
+
+    private val _filters = combine(_showUserApps, _showSystemApps, _showLinuxProcess) { user, system, linux ->
+        Triple(user, system, linux)
+    }
+
     val filteredProcesses: StateFlow<List<ProcessUiModel>> = combine(
         _uiProcesses,
-        _showUserApps,
-        _showSystemApps,
-        _showLinuxProcess,
-        _sortBy
-    ) { processes, showUser, showSystem, showLinux, sortBy ->
+        _filters,
+        _sortBy,
+        _pinned
+    ) { processes, filters, sortBy, pinned ->
+        val (showUser, showSystem, showLinux) = filters
 
         val filtered = processes.filter { process ->
             when {
@@ -92,7 +99,7 @@ class ProcessViewModel : ViewModel() {
             else -> filtered
         }
 
-        sorted.sortedByDescending { it.isPinned.value }
+        sorted.sortedByDescending { it.proc.cmdLine in pinned }
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
@@ -143,19 +150,18 @@ class ProcessViewModel : ViewModel() {
     }
 
     fun togglePin(uiModel: ProcessUiModel) {
+        val key = uiModel.proc.cmdLine
         val pinned = Settings.pinnedProcesses.toMutableSet()
-        if (uiModel.isPinned.value) {
-            pinned.remove(uiModel.proc.cmdLine)
-            uiModel.isPinned.value = false
-        } else {
-            pinned.add(uiModel.proc.cmdLine)
-            uiModel.isPinned.value = true
-        }
+        val nowPinned = pinned.add(key)
+        if (!nowPinned) pinned.remove(key)
+
         Settings.pinnedProcesses = pinned
-        
-        // Trigger a re-sort by updating the list
-        _uiProcesses.update { currentList ->
-            currentList.toList()
+        _pinned.value = pinned
+
+        // Keep every model of this process in sync (the list may hold a newer instance)
+        uiModel.isPinned.value = nowPinned
+        _uiProcesses.value.forEach {
+            if (it.proc.cmdLine == key) it.isPinned.value = nowPinned
         }
     }
 

@@ -2,8 +2,6 @@ package com.rk.taskmanager.settings
 
 import com.rk.taskmanager.ProcessUiModel
 import com.rk.taskmanager.screens.procByPid
-import java.lang.ref.WeakReference
-import kotlin.collections.set
 
 sealed class SettingsRoutes(val route: String) {
     //main
@@ -12,7 +10,7 @@ sealed class SettingsRoutes(val route: String) {
     data object SelectWorkingMode : SettingsRoutes("SelectWorkingMode")
     data object ProcessInfo : SettingsRoutes("proc/{pid}") {
         fun createRoute(proc: ProcessUiModel):String{
-            procByPid[proc.proc.pid] = WeakReference(proc)
+            procByPid[proc.proc.pid] = proc
             return "proc/${proc.proc.pid}"
         }
     }

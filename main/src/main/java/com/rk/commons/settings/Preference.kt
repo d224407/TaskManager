@@ -4,54 +4,35 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import com.rk.commons.application
-import kotlin.reflect.KProperty
+import java.util.concurrent.ConcurrentHashMap
 
 object Preference {
     private var sharedPreferences: SharedPreferences = application!!.getSharedPreferences("Settings", Context.MODE_PRIVATE)
 
-    //store the result into memory for faster access
-    private val stringCache = hashMapOf<String, String?>()
-    private val boolCache = hashMapOf<String, Boolean>()
-    private val intCache = hashMapOf<String, Int>()
-    private val longCache = hashMapOf<String, Long>()
-    private val floatCache = hashMapOf<String, Float>()
+    //store the result into memory for faster access (read from several threads)
+    private val stringCache = ConcurrentHashMap<String, String>()
+    private val boolCache = ConcurrentHashMap<String, Boolean>()
+    private val intCache = ConcurrentHashMap<String, Int>()
+    private val longCache = ConcurrentHashMap<String, Long>()
+    private val floatCache = ConcurrentHashMap<String, Float>()
 
     @SuppressLint("ApplySharedPref")
     fun clearData(){
         sharedPreferences.edit().clear().commit()
+        stringCache.clear()
+        boolCache.clear()
+        intCache.clear()
+        longCache.clear()
+        floatCache.clear()
     }
 
     fun removeKey(key: String){
-        if (sharedPreferences.contains(key).not()){
-            return
-        }
-
         sharedPreferences.edit().remove(key).apply()
-
-        if (stringCache.containsKey(key)){
-            stringCache.remove(key)
-            return
-        }
-
-        if (boolCache.containsKey(key)){
-            boolCache.remove(key)
-            return
-        }
-
-        if (intCache.containsKey(key)){
-            intCache.remove(key)
-            return
-        }
-
-        if (longCache.containsKey(key)){
-            longCache.remove(key)
-            return
-        }
-
-        if (floatCache.containsKey(key)){
-            floatCache.remove(key)
-            return
-        }
+        stringCache.remove(key)
+        boolCache.remove(key)
+        intCache.remove(key)
+        longCache.remove(key)
+        floatCache.remove(key)
     }
 
     fun getBoolean(key: String, default: Boolean): Boolean {
@@ -74,8 +55,6 @@ object Preference {
         }.onFailure { it.printStackTrace() }
     }
 
-
-
     fun getString(key: String, default: String): String {
         runCatching {
             return stringCache[key] ?: sharedPreferences.getString(key, default)!!
@@ -86,8 +65,9 @@ object Preference {
         }
         return default
     }
+
     fun setString(key: String, value: String?) {
-        stringCache[key] = value
+        if (value == null) stringCache.remove(key) else stringCache[key] = value
         runCatching {
             val editor = sharedPreferences.edit()
             editor.putString(key, value)
@@ -95,7 +75,6 @@ object Preference {
         }.onFailure {
             it.printStackTrace()
         }
-
     }
 
     fun getInt(key: String, default: Int): Int {
@@ -118,7 +97,6 @@ object Preference {
         }.onFailure {
             it.printStackTrace()
         }
-
     }
 
     fun getLong(key: String, default: Long): Long {
@@ -136,7 +114,7 @@ object Preference {
         longCache[key] = value
         runCatching {
             val editor = sharedPreferences.edit()
-            editor.putLong(key,value)
+            editor.putLong(key, value)
             editor.apply()
         }.onFailure {
             it.printStackTrace()
@@ -158,13 +136,10 @@ object Preference {
         floatCache[key] = value
         runCatching {
             val editor = sharedPreferences.edit()
-            editor.putFloat(key,value)
+            editor.putFloat(key, value)
             editor.apply()
         }.onFailure {
             it.printStackTrace()
         }
     }
-
-
-
 }

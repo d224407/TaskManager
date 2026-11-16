@@ -25,36 +25,25 @@ android {
 
     signingConfigs {
         create("release") {
-            val isGITHUB_ACTION = System.getenv("GITHUB_ACTIONS") == "true"
+            val envStore = System.getenv("KEYSTORE_FILE")?.let { File(it) }
+            val propsFile = rootProject.file("signing.properties")
 
-            if (isGITHUB_ACTION) {
-                // ---- GitHub Actions: đọc trực tiếp từ env ----
-                val keystorePath = System.getenv("KEYSTORE_FILE") ?: "/tmp/xed.keystore"
-                val keystoreFile = File(keystorePath)
-
-                if (keystoreFile.exists()) {
-                    storeFile = keystoreFile
-                    storePassword = System.getenv("KEYSTORE_PASSWORD")
-                    keyAlias = System.getenv("KEY_ALIAS")
-                    keyPassword = System.getenv("KEY_PASSWORD")
-                } else {
-                    println("Keystore file not found at $keystorePath")
-                }
+            if (envStore != null && envStore.length() > 0L && System.getenv("KEYSTORE_PASSWORD") != null) {
+                // CI: read from env
+                storeFile = envStore
+                storePassword = System.getenv("KEYSTORE_PASSWORD")
+                keyAlias = System.getenv("KEY_ALIAS")
+                keyPassword = System.getenv("KEY_PASSWORD")
+            } else if (propsFile.exists()) {
+                // Local: read from <root>/signing.properties
+                val properties = Properties()
+                propsFile.inputStream().use { properties.load(it) }
+                keyAlias = properties["keyAlias"] as String?
+                keyPassword = properties["keyPassword"] as String?
+                storeFile = (properties["storeFile"] as String?)?.let { File(it) }
+                storePassword = properties["storePassword"] as String?
             } else {
-                // ---- Local build: đọc từ signing.properties ----
-                val propertiesFilePath = "/home/rohit/Android/xed-signing/signing.properties"
-                val propertiesFile = File(propertiesFilePath)
-
-                if (propertiesFile.exists()) {
-                    val properties = Properties()
-                    properties.load(propertiesFile.inputStream())
-                    keyAlias = properties["keyAlias"] as String?
-                    keyPassword = properties["keyPassword"] as String?
-                    storeFile = (properties["storeFile"] as String?)?.let { File(it) }
-                    storePassword = properties["storePassword"] as String?
-                } else {
-                    println("Signing properties file not found at $propertiesFilePath")
-                }
+                println("No release keystore found, release will use debug signing")
             }
         }
     }
@@ -69,7 +58,9 @@ android {
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
             )
-            signingConfig = signingConfigs.getByName("release")
+            val releaseSigning = signingConfigs.getByName("release")
+            signingConfig = if (releaseSigning.storeFile != null) releaseSigning
+            else signingConfigs.getByName("debug")
         }
         debug {
             versionNameSuffix = "-DEBUG"

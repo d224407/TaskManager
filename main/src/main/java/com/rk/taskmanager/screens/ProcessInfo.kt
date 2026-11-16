@@ -80,6 +80,7 @@ import com.rk.taskmanager.daemon.send_daemon_messages
 import com.rk.commons.getString
 import com.rk.taskmanager.settings.SettingsRoutes
 import com.rk.commons.strings
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -92,7 +93,6 @@ import kotlinx.coroutines.withTimeout
 import org.json.JSONObject
 import java.io.BufferedReader
 import java.io.InputStreamReader
-import java.lang.ref.WeakReference
 import java.text.DateFormat
 import java.util.Date
 import java.util.concurrent.TimeUnit
@@ -107,7 +107,7 @@ fun elapsedFromStartTime(startTimeTicks: Long): String {
     val m = TimeUnit.SECONDS.toMinutes(elapsedSeconds) % 60
     val s = elapsedSeconds % 60
 
-    return String.format("%02d:%02d:%02d", h, m, s)
+    return String.format(java.util.Locale.US, "%02d:%02d:%02d", h, m, s)
 }
 
 fun startTimeToMillis(startTimeTicks: Long): Long {
@@ -196,7 +196,7 @@ suspend fun killProc(proc: ProcessViewModel.Process): Boolean {
     killResult = withContext(Dispatchers.IO) {
         runCatching {
             withTimeout(3000L) {
-                val resultDeferred = async {
+                val resultDeferred = async(start = CoroutineStart.UNDISPATCHED) {
                     daemon_messages.first { message ->
                         try {
                             val json = JSONObject(message)
@@ -231,7 +231,7 @@ suspend fun killProc(proc: ProcessViewModel.Process): Boolean {
     return killResult
 }
 
-val procByPid = mutableStateMapOf<Int, WeakReference<ProcessUiModel?>?>()
+val procByPid = mutableStateMapOf<Int, ProcessUiModel>()
 
 
 @OptIn(
@@ -683,8 +683,10 @@ fun ProcessInfo(
 suspend fun getUsernameFromUid(uid: Int): String? = withContext(Dispatchers.IO) {
     return@withContext try {
         val process = ProcessBuilder("id", "-nu", uid.toString()).start()
-        val reader = BufferedReader(InputStreamReader(process.inputStream))
-        reader.readLine()?.trim()
+        val name = BufferedReader(InputStreamReader(process.inputStream)).use { it.readLine()?.trim() }
+        process.waitFor()
+        process.destroy()
+        name?.takeIf { it.isNotEmpty() }
     } catch (e: Exception) {
         null
     }

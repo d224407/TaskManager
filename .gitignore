@@ -15,4 +15,6 @@
 .cxx
 local.properties
 *.log
-
+signing.properties
+*.keystore
+*.jks

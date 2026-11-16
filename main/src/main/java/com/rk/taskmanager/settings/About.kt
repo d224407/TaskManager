@@ -122,7 +122,7 @@ fun About(modifier: Modifier = Modifier) {
                     Modifier.combinedClickable(
                         enabled = true,
                         onClick = {},
-                        onLongClick = { copyToClipboard(context, BuildConfig.GIT_SHORT_COMMIT_HASH) },
+                        onLongClick = { copyToClipboard(context, strings.community.getString()) },
                     ),
                 title = {
                     Text(text = stringResource(strings.build_type), style = MaterialTheme.typography.titleMedium)

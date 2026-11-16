@@ -149,7 +149,7 @@ fun CPU(modifier: Modifier = Modifier, viewModel: ProcessViewModel) {
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
-                            InfoItem(stringResource(strings.cores), cpuInfo?.cores.toString())
+                            InfoItem(stringResource(strings.cores), cpuInfo?.cores?.toString() ?: stringResource(strings.no_data))
                         }
                         Column(modifier = Modifier.weight(1f)) {
                             InfoItem(stringResource(strings.governor), cpuInfo?.governor ?: stringResource(strings.no_data))

@@ -4,16 +4,12 @@ pluginManagement {
         maven(url = uri("https://jitpack.io"))
         mavenCentral()
         gradlePluginPortal()
-
-        maven { url = uri("https://jitpack.io")}
         maven {
             url = uri("https://oss.sonatype.org/content/repositories/snapshots/")
         }
-        maven("https://oss.sonatype.org/content/repositories/snapshots/")
         maven {
             url = uri("https://s01.oss.sonatype.org/content/repositories/releases/")
         }
-
     }
     plugins {
         kotlin("jvm") version "2.1.10"
@@ -24,13 +20,9 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        maven { url = uri("https://jitpack.io")}
+        maven { url = uri("https://jitpack.io") }
         maven {
             url = uri("https://oss.sonatype.org/content/repositories/snapshots/")
-        }
-        maven("https://oss.sonatype.org/content/repositories/snapshots/")
-        maven {
-            url = uri("https://s01.oss.sonatype.org/content/repositories/releases/")
         }
         maven {
             url = uri("https://s01.oss.sonatype.org/content/repositories/releases/")

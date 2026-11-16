@@ -18,10 +18,12 @@
 #include <fstream>
 #include <iostream>
 #include <memory>
+#include <optional>
 #include <regex>
 #include <sstream>
 #include <string>
 #include <thread>
+#include <unordered_map>
 #include <vector>
 
 #include <dirent.h>
@@ -110,21 +112,21 @@ std::optional<int> getBatteryCycleCount() {
     return std::nullopt;
 }
 
-static std::regex pid_regex("\\d+");
+static bool isAllDigits(const std::string &s) {
+    return !s.empty() && s.size() < 10 &&
+           std::all_of(s.begin(), s.end(), [](unsigned char c) { return std::isdigit(c) != 0; });
+}
 
 std::vector<int> listPids() {
     std::vector<int> pids;
     pids.reserve(256);
-    for (const auto &entry : fs::directory_iterator("/proc")) {
-        try {
-            if (entry.is_directory()) {
-                std::string name = entry.path().filename();
-                if (std::regex_match(name, pid_regex)) {
-                    pids.push_back(std::stoi(name));
-                }
-            }
-        } catch (...) {}
+    DIR *dir = opendir("/proc");
+    if (!dir) return pids;
+    while (struct dirent *entry = readdir(dir)) {
+        std::string name = entry->d_name;
+        if (isAllDigits(name)) pids.push_back(std::stoi(name));
     }
+    closedir(dir);
     return pids;
 }
 
@@ -400,7 +402,7 @@ std::vector<NetInterfaceInfo> listNetInterfaces() {
             if (name == "lo") continue;
 
             std::istringstream iss(line.substr(colon + 1));
-            unsigned long long rxBytes, txBytes, dummy;
+            unsigned long long rxBytes = 0, txBytes = 0, dummy = 0;
             iss >> rxBytes;
             for(int i=0; i<7; ++i) iss >> dummy;
             iss >> txBytes;
@@ -415,10 +417,14 @@ NetStat getNetStat(const std::string& iface) {
     std::ifstream netdev("/proc/net/dev");
     std::string line;
     while (std::getline(netdev, line)) {
-        if (line.find(iface + ":") != std::string::npos) {
-            std::istringstream iss(line.substr(line.find(':') + 1));
-            unsigned long long rxBytes, dummy;
-            unsigned long long txBytes;
+        size_t colon = line.find(':');
+        if (colon == std::string::npos) continue;
+        std::string name = line.substr(0, colon);
+        name.erase(0, name.find_first_not_of(' '));
+        if (name == iface) {
+            std::istringstream iss(line.substr(colon + 1));
+            unsigned long long rxBytes = 0, dummy = 0;
+            unsigned long long txBytes = 0;
             iss >> rxBytes;
             for(int i=0; i<7; ++i) iss >> dummy;
             iss >> txBytes;
@@ -547,8 +553,10 @@ void processCommand(const std::string &received) {
                 double elapsed = std::chrono::duration<double>(now - prev.timestamp).count();
 
                 if (elapsed > 0.0) {
-                    j_out["rxBytesPerSec"] = (curr.rxBytes - prev.rxBytes) / elapsed;
-                    j_out["txBytesPerSec"] = (curr.txBytes - prev.txBytes) / elapsed;
+                    double rxDiff = curr.rxBytes >= prev.rxBytes ? (double)(curr.rxBytes - prev.rxBytes) : 0.0;
+                    double txDiff = curr.txBytes >= prev.txBytes ? (double)(curr.txBytes - prev.txBytes) : 0.0;
+                    j_out["rxBytesPerSec"] = rxDiff / elapsed;
+                    j_out["txBytesPerSec"] = txDiff / elapsed;
                 } else {
                     j_out["rxBytesPerSec"] = 0;
                     j_out["txBytesPerSec"] = 0;
