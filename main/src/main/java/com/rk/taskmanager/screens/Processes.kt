@@ -200,7 +200,10 @@ fun Processes(
                     state = listState
                 ) {
 
-                    items(filteredProcesses, key = { it.proc.pid }) { uiProc ->
+                    // Keyed rows follow a moved item (viewport jumps); without keys a move just swaps rows in place
+                    val rowKey: ((ProcessUiModel) -> Any)? =
+                        if (Settings.procStableOrder) ({ p: ProcessUiModel -> p.proc.pid }) else null
+                    items(filteredProcesses, key = rowKey) { uiProc ->
                         ProcessItem(modifier, uiProc, navController = navController, viewModel)
                     }
 

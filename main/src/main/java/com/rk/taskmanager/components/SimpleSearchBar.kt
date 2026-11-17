@@ -42,6 +42,8 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.rk.commons.settings.Settings
+import com.rk.taskmanager.ProcessUiModel
 import com.rk.taskmanager.ProcessViewModel
 import com.rk.taskmanager.screens.Filter
 import com.rk.taskmanager.screens.ProcessItem
@@ -153,9 +155,11 @@ fun ProcessSearchBar(
         ) {
             // Use LazyColumn for virtual scrolling - only renders visible items
             LazyColumn {
+                val rowKey: ((ProcessUiModel) -> Any)? =
+                    if (Settings.procStableOrder) ({ p: ProcessUiModel -> p.proc.pid }) else null
                 items(
                     items = searchResults,
-                    key = { it.proc.pid }  // Use PID as stable key
+                    key = rowKey
                 ) { proc ->
                     ProcessItem(
                         modifier = Modifier,
