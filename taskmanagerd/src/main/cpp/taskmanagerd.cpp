@@ -250,26 +250,52 @@ long getSystemUptime() {
     return static_cast<long>(uptimeSeconds * sysconf(_SC_CLK_TCK));
 }
 
-float calculateProcessCpuUsage(int pid) {
-    std::string statPath = "/proc/" + std::to_string(pid) + "/stat";
-    std::ifstream statFile(statPath);
-    if (!statFile.is_open()) return 0.0f;
+struct CpuSample {
+    long ticks;
+    long startTime;
+    std::chrono::steady_clock::time_point at;
+    float last;
+};
+using CpuCache = std::unordered_map<int, CpuSample>;
+
+// Separate caches so LIST_PROCESS and PING_PID_CPU do not disturb each other's deltas
+static CpuCache listCpuCache;
+static CpuCache pingCpuCache;
+
+// Usage between two samples, 0-100% of total CPU (all cores)
+float calculateProcessCpuUsage(int pid, CpuCache &cache) {
+    std::ifstream statFile("/proc/" + std::to_string(pid) + "/stat");
+    if (!statFile.is_open()) { cache.erase(pid); return 0.0f; }
     std::string line;
     std::getline(statFile, line);
     size_t lastParen = line.rfind(')');
     if (lastParen == std::string::npos) return 0.0f;
     std::istringstream iss(line.substr(lastParen + 2));
-    std::string state;
     long utime = 0, stime = 0, starttime = 0;
     for (int i = 0; i < 11; ++i) { std::string dummy; iss >> dummy; }
     iss >> utime >> stime;
     for (int i = 0; i < 6; ++i) { std::string dummy; iss >> dummy; }
     iss >> starttime;
-    long totalTime = utime + stime;
-    long uptime = getSystemUptime();
-    long elapsedTime = uptime - starttime;
-    if (elapsedTime > 0) return (100.0f * totalTime) / elapsedTime;
-    return 0.0f;
+
+    static const long hz = std::max(1L, sysconf(_SC_CLK_TCK));
+    static const long cores = std::max(1L, sysconf(_SC_NPROCESSORS_CONF));
+
+    long total = utime + stime;
+    auto now = std::chrono::steady_clock::now();
+    auto it = cache.find(pid);
+    if (it == cache.end() || it->second.startTime != starttime) {
+        cache[pid] = {total, starttime, now, 0.0f};
+        return 0.0f;
+    }
+
+    CpuSample &prev = it->second;
+    double dt = std::chrono::duration<double>(now - prev.at).count();
+    if (dt < 0.2) return prev.last;
+
+    double dTicks = total >= prev.ticks ? (double)(total - prev.ticks) : 0.0;
+    float usage = (float)std::clamp(dTicks / (dt * hz) * 100.0 / cores, 0.0, 100.0);
+    prev = {total, starttime, now, usage};
+    return usage;
 }
 
 bool isForegroundProcess(int pid) {
@@ -336,7 +362,7 @@ Proc readProc(int pid) {
         else if (line.compare(0, 8, "Threads:") == 0) { p.threads = std::stoi(line.substr(9)); fieldsFound++; }
         else if (line.compare(0, 6, "State:") == 0) { p.state = line.substr(7); fieldsFound++; }
     }
-    p.cpuUsage = calculateProcessCpuUsage(pid);
+    p.cpuUsage = calculateProcessCpuUsage(pid, listCpuCache);
     p.isForeground = isForegroundProcess(pid);
     p.cgroup = getCgroup(pid);
     p.executablePath = getExecutablePath(pid);
@@ -359,6 +385,11 @@ std::vector<Proc> collectProcs() {
     std::vector<int> pids = listPids();
     procs.reserve(pids.size());
     for (int pid : pids) { try { procs.push_back(readProc(pid)); } catch (...) {} }
+    // Drop samples of processes that are gone
+    for (auto it = listCpuCache.begin(); it != listCpuCache.end();) {
+        if (std::find(pids.begin(), pids.end(), it->first) == pids.end()) it = listCpuCache.erase(it);
+        else ++it;
+    }
     return procs;
 }
 
@@ -506,7 +537,7 @@ void processCommand(const std::string &received) {
         } else if (cmd == "PING_PID_CPU") {
             int pid = j_in.value("pid", -1);
             j_out["type"] = "PROCESS_CPU_USAGE";
-            j_out["usage"] = calculateProcessCpuUsage(pid);
+            j_out["usage"] = calculateProcessCpuUsage(pid, pingCpuCache);
             send_json(j_out);
         } else if(cmd == "BAT_CHARGE_CYCLES"){
             j_out["type"] = "CHARGE_CYCLES";
