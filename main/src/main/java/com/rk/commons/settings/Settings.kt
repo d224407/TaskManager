@@ -2,6 +2,8 @@ package com.rk.commons.settings
 
 object Settings {
     var procAutoRefresh by BooleanPref(key = "proc_auto_refresh", default = true)
+    var procRefreshInterval by IntPref(key = "proc_refresh_interval", default = 5000)
+    var procStableOrder by BooleanPref(key = "proc_stable_order", default = true)
     var theme by IntPref(default = 0)
     var themeMode by IntPref(key = "theme_mode", default = 0)
     var sortby by IntPref(default = 0)

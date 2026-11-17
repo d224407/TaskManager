@@ -80,11 +80,9 @@ fun Processes(
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
-        if (Settings.procAutoRefresh){
-            while (isActive){
-                viewModel.refreshProcessesAuto()
-                delay(5000)
-            }
+        while (isActive){
+            if (Settings.procAutoRefresh) viewModel.refreshProcessesAuto()
+            delay(Settings.procRefreshInterval.coerceIn(1000, 10000).toLong())
         }
     }
 

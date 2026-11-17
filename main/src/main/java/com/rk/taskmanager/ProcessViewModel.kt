@@ -75,6 +75,11 @@ class ProcessViewModel : ViewModel() {
         Triple(user, system, linux)
     }
 
+    // Stable order: keep row positions between refreshes, re-sort only on demand
+    private var lastSortKey: Any? = null
+    private var lastOrder: List<Int> = emptyList()
+    @Volatile private var forceResort = true
+
     val filteredProcesses: StateFlow<List<ProcessUiModel>> = combine(
         _uiProcesses,
         _filters,
@@ -99,7 +104,21 @@ class ProcessViewModel : ViewModel() {
             else -> filtered
         }
 
-        sorted.sortedByDescending { it.proc.cmdLine in pinned }
+        val fullSort = sorted.sortedByDescending { it.proc.cmdLine in pinned }
+
+        val key = Triple(sortBy, filters, pinned)
+        val result = if (!Settings.procStableOrder || forceResort || key != lastSortKey) {
+            forceResort = false
+            fullSort
+        } else {
+            val byPid = fullSort.associateBy { it.proc.pid }
+            val kept = lastOrder.mapNotNull { byPid[it] }
+            val keptPids = kept.mapTo(HashSet()) { it.proc.pid }
+            kept + fullSort.filter { it.proc.pid !in keptPids }
+        }
+        lastSortKey = key
+        lastOrder = result.map { it.proc.pid }
+        result
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
@@ -277,6 +296,7 @@ class ProcessViewModel : ViewModel() {
     }
 
     fun refreshProcessesManual() {
+        forceResort = true
         isLoading.value = true
         viewModelScope.launch {
             send_daemon_messages.emit(JSONObject().apply { put("cmd", "LIST_PROCESS") }.toString())

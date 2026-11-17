@@ -198,4 +198,8 @@
     <string name="usage_notif">Usage Notification</string>
     <string name="usage_notif_Desc">Show a notification to view resource usage in background</string>
 
+    <string name="proc_refresh_rate">Refresh interval</string>
+    <string name="seconds_unit">%1$ds</string>
+    <string name="stable_order">Keep list order</string>
+    <string name="stable_order_desc">Rows stay in place while values update. Pull to refresh to re-sort.</string>
 </resources>
