@@ -253,7 +253,7 @@ long getSystemUptime() {
 struct CpuSample {
     long ticks;
     long startTime;
-    std::chrono::steady_clock::time_point at;
+    unsigned long long total;
     float last;
 };
 using CpuCache = std::unordered_map<int, CpuSample>;
@@ -262,7 +262,20 @@ using CpuCache = std::unordered_map<int, CpuSample>;
 static CpuCache listCpuCache;
 static CpuCache pingCpuCache;
 
-// Usage between two samples, 0-100% of total CPU (all cores)
+// Total CPU jiffies of all cores (busy + idle), refreshed once per sampling round
+static unsigned long long g_totalJiffies = 0;
+
+static void refreshTotalJiffies() {
+    std::ifstream file("/proc/stat");
+    std::string label;
+    unsigned long long v[8] = {0};
+    if (!(file >> label)) return;
+    for (auto &x : v) file >> x; // user nice system idle iowait irq softirq steal
+    g_totalJiffies = 0;
+    for (auto x : v) g_totalJiffies += x;
+}
+
+// Share of total CPU capacity used between two samples, 0-100% (same scale as Windows)
 float calculateProcessCpuUsage(int pid, CpuCache &cache) {
     std::ifstream statFile("/proc/" + std::to_string(pid) + "/stat");
     if (!statFile.is_open()) { cache.erase(pid); return 0.0f; }
@@ -277,24 +290,21 @@ float calculateProcessCpuUsage(int pid, CpuCache &cache) {
     for (int i = 0; i < 6; ++i) { std::string dummy; iss >> dummy; }
     iss >> starttime;
 
-    static const long hz = std::max(1L, sysconf(_SC_CLK_TCK));
-    static const long cores = std::max(1L, sysconf(_SC_NPROCESSORS_CONF));
-
-    long total = utime + stime;
-    auto now = std::chrono::steady_clock::now();
+    long ticks = utime + stime;
     auto it = cache.find(pid);
     if (it == cache.end() || it->second.startTime != starttime) {
-        cache[pid] = {total, starttime, now, 0.0f};
+        cache[pid] = {ticks, starttime, g_totalJiffies, 0.0f};
         return 0.0f;
     }
 
     CpuSample &prev = it->second;
-    double dt = std::chrono::duration<double>(now - prev.at).count();
-    if (dt < 0.2) return prev.last;
+    unsigned long long dTotal = g_totalJiffies >= prev.total ? g_totalJiffies - prev.total : 0;
+    // Too little time passed to be meaningful, keep the last value
+    if (dTotal < 20) return prev.last;
 
-    double dTicks = total >= prev.ticks ? (double)(total - prev.ticks) : 0.0;
-    float usage = (float)std::clamp(dTicks / (dt * hz) * 100.0 / cores, 0.0, 100.0);
-    prev = {total, starttime, now, usage};
+    double dTicks = ticks >= prev.ticks ? (double)(ticks - prev.ticks) : 0.0;
+    float usage = (float)std::clamp(dTicks * 100.0 / (double)dTotal, 0.0, 100.0);
+    prev = {ticks, starttime, g_totalJiffies, usage};
     return usage;
 }
 
@@ -384,6 +394,7 @@ std::vector<Proc> collectProcs() {
     std::vector<Proc> procs;
     std::vector<int> pids = listPids();
     procs.reserve(pids.size());
+    refreshTotalJiffies();
     for (int pid : pids) { try { procs.push_back(readProc(pid)); } catch (...) {} }
     // Drop samples of processes that are gone
     for (auto it = listCpuCache.begin(); it != listCpuCache.end();) {
@@ -537,6 +548,7 @@ void processCommand(const std::string &received) {
         } else if (cmd == "PING_PID_CPU") {
             int pid = j_in.value("pid", -1);
             j_out["type"] = "PROCESS_CPU_USAGE";
+            refreshTotalJiffies();
             j_out["usage"] = calculateProcessCpuUsage(pid, pingCpuCache);
             send_json(j_out);
         } else if(cmd == "BAT_CHARGE_CYCLES"){
