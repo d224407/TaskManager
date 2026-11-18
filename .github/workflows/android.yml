@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -20,6 +20,8 @@ jobs:
     name: Build Release
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    env:
+      HAS_KEYSTORE: ${{ secrets.KEYSTORE != '' }}
 
     steps:
       - uses: actions/checkout@v7
@@ -60,6 +62,22 @@ jobs:
         with:
           name: TaskManager-Release
           path: app/taskmanager-${{ env.COMMIT_HASH }}.apk
+
+      # Only properly signed builds are published, otherwise updates would fail to install
+      - name: Publish release
+        if: ${{ env.HAS_KEYSTORE == 'true' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION=$(grep -oP 'versionName = "\K[^"]+' app/build.gradle.kts | head -1)
+          TAG="v${VERSION}"
+          ASSET="app/TaskManager-${TAG}.apk"
+          cp "app/taskmanager-${COMMIT_HASH}.apk" "$ASSET"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" "$ASSET" --clobber
+          else
+            gh release create "$TAG" "$ASSET" --target "$GITHUB_SHA" --title "TaskManager ${TAG}" --generate-notes
+          fi
 
       - name: Delete keystore
         if: always()

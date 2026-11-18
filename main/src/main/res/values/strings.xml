@@ -202,4 +202,9 @@
     <string name="seconds_unit">%1$ds</string>
     <string name="stable_order">Keep list order</string>
     <string name="stable_order_desc">Rows stay in place while values update. Pull to refresh to re-sort.</string>
+    <string name="check_update">Check for updates</string>
+    <string name="checking_update">Checking...</string>
+    <string name="up_to_date">You are on the latest version</string>
+    <string name="update_available">Version %1$s is available, tap to download</string>
+    <string name="update_failed">Could not check for updates</string>
 </resources>
