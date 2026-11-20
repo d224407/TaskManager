@@ -9,11 +9,9 @@ android {
 
     defaultConfig {
         minSdk = 24
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildFeatures {
-        viewBinding = true
         compose = true
     }
 

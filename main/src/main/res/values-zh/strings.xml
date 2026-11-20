@@ -7,8 +7,6 @@
     <string name="shizuku_not_installed">Shizuku 尚未安装</string>
     <string name="su_not_in_path">在 \$PATH 中未找到 su</string>
     <string name="daemon_not_started">守护进程未启动</string>
-    <string name="starting_daemon">守护进程启动中…</string>
-    <string name="apply">应用</string>
     <string name="cancel">取消</string>
     <string name="show_user_app">显示用户应用</string>
     <string name="show_system_app">显示系统应用</string>
@@ -19,7 +17,6 @@
     <string name="kill">终止进程</string>
     <string name="killed">已终止</string>
     <string name="stopped">已停止</string>
-    <string name="kill_fail">终止失败</string>
     <string name="kill_proc">终止此进程</string>
     <string name="loading">加载中…</string>
     <string name="name">名称</string>
@@ -41,7 +38,6 @@
     <string name="exec_path">可执行文件路径</string>
     <string name="requires_daemon_restart">更改将在下次冷启动后生效</string>
     <string name="daemon_wait">正在等待守护进程连接…</string>
-    <string name="timeout">超时</string>
     <string name="res">资源</string>
     <string name="procs">进程</string>
     <string name="copied">复制到剪贴板</string>
@@ -50,11 +46,6 @@
     <string name="noob">此应用需要特殊权限来管理系统任务。\n您的设备目前没有此访问权限。\n要继续使用，请：\n\n• 安装 Shizuku 应用并启动，或\n• 使用已取得 Root 权限的设备。</string>
     <string name="theme">主题</string>
     <string name="dynamic_theme">动态色彩</string>
-    <string name="ad_desc">要更改主题，请观看一个广告短视频。这有助于使本应用程序对所有人免费。</string>
-    <string name="ok">OK</string>
-    <string name="ad">广告</string>
-    <string name="privacy_policy">隐私政策</string>
-    <string name="privacy_desc">TaskManager 的隐私政策</string>
     <string name="graph_update">图表更新延迟</string>
     <string name="flame">Flame</string>
     <string name="leaf">Leaf</string>
@@ -89,9 +80,6 @@
     <string name="git_hash">Git Commit hash</string>
     <string name="build_type">Build Type</string>
     <string name="community">Community</string>
-    <string name="full">Full</string>
-<string name="yes">Yes</string>
-    <string name="no">No</string>
     <string name="copied_to_clipboard">已复制到剪贴板</string>
 
     <!-- Process Settings -->
@@ -105,27 +93,9 @@
     <string name="auto_refresh_desc">自动刷新进程列表</string>
 
     <!-- Pro Version Screen -->
-    <string name="battery_stats">电池状态</string>
-    <string name="battery_stats_desc">查看充电进度、充电状态和电池运行状况</string>
-    <string name="network_monitor">网络监视器</string>
-    <string name="network_monitor_desc">查看实时网速和数据使用量</string>
 
-    <string name="process_pin">置顶进程</string>
-    <string name="process_pin_desc">将进程置顶</string>
-    <string name="upgrade_to_pro">升级到 Pro 版</string>
-    <string name="help">帮助</string>
     <string name="back">返回</string>
     <string name="search">搜索</string>
-    <string name="what_you_get">WHAT YOU GET</string>
-    <string name="secure_payment">通过 Google Play 安全支付</string>
-    <string name="task_manager_uppercase">TASK MANAGER</string>
-<string name="one_time_purchase">仅需一次购买</string>
-    <string name="purchase_in_progress">正在支付...</string>
-    <string name="permanent_pro_access">一次购买即可获得永久的 Pro 版授权</string>
-    <string name="processing">处理中…</string>
-    <string name="upgrade_now">现在就升级</string>
-    <string name="pro_unlocked">已解锁 Pro 版</string>
-    <string name="thanks_support">感谢支持 Task Manager！</string>
 
     <!-- Processes Screen -->
     <string name="sort_by_ram">以 RAM 占用排序</string>
@@ -155,8 +125,6 @@
     <string name="gpu">GPU</string>
 
 
-    <string name="net">网络</string>
-    <string name="bat">电池</string>
     <string name="not_implemented">本功能暂未实现</string>
 
     <!-- CPU Screen -->
@@ -192,6 +160,5 @@
     <string name="cpu_usage_label">CPU - %s</string>
 
     <!-- Misc -->
-    <string name="please_wait">请稍等</string>
     <string name="ms_unit">%1$dms</string>
 </resources>

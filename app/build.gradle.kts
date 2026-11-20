@@ -1,12 +1,8 @@
 import java.util.Properties
 
-val isIzzyOrFdroid = false
-
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.compose.compiler)
-
-    alias(libs.plugins.baselineprofile)
 }
 
 
@@ -92,22 +88,11 @@ android {
     }
 
     buildFeatures {
-        viewBinding = true
         compose = true
     }
 }
 
-tasks.whenTaskAdded {
-    if (isIzzyOrFdroid && name.contains("ArtProfile")) {
-        println("Skipped Task $name")
-        enabled = false
-    }
-}
-
 dependencies {
-    implementation(libs.androidx.profileinstaller)
-    "baselineProfile"(project(":baselineprofile"))
-
     implementation(libs.androidx.room.ktx)
     implementation(project(":main"))
 }

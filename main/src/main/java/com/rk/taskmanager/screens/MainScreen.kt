@@ -2,9 +2,7 @@ package com.rk.taskmanager.screens
 
 import android.Manifest
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Build
 import android.widget.Toast
 import android.content.pm.PackageManager
@@ -63,13 +61,6 @@ import kotlinx.coroutines.launch
 var selectedscreen = mutableIntStateOf(if (Settings.defaultToProcessScreen) 1 else 0)
 var showFilter = mutableStateOf(false)
 var showSort = mutableStateOf(false)
-
-fun Context.openAppSettings() {
-    val intent = Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-        data = Uri.fromParts("package", packageName, null)
-    }
-    startActivity(intent)
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

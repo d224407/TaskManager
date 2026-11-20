@@ -7,8 +7,6 @@
     <string name="shizuku_not_installed">Shizuku not installed</string>
     <string name="su_not_in_path">\'su\' does not exists or not working properly</string>
     <string name="daemon_not_started">Daemon failed to start</string>
-    <string name="starting_daemon">Starting daemon…</string>
-    <string name="apply">Apply</string>
     <string name="cancel">Cancel</string>
     <string name="show_user_app">Show user apps</string>
     <string name="show_system_app">Show system apps</string>
@@ -19,7 +17,6 @@
     <string name="kill">Kill Process</string>
     <string name="killed">Killed</string>
     <string name="stopped">Stopped</string>
-    <string name="kill_fail">Kill Failed</string>
     <string name="kill_proc">Terminate this process</string>
     <string name="loading">Loading…</string>
     <string name="name">Name</string>
@@ -41,7 +38,6 @@
     <string name="exec_path">Executable Path</string>
     <string name="requires_daemon_restart">Changes will take effect after next cold-start</string>
     <string name="daemon_wait">Waiting for daemon connection…</string>
-    <string name="timeout">Timeout</string>
     <string name="res">Resources</string>
     <string name="procs">Processes</string>
     <string name="copied">Copied to clipboard</string>
@@ -50,11 +46,6 @@
     <string name="noob">This app needs special permission to manage system tasks.\nYour device doesn’t have this access right now.\nTo continue, please:\n\n• Install the Shizuku app and start it, or\n• Use a rooted device.</string>
     <string name="theme">Theme</string>
     <string name="dynamic_theme">Dynamic Theme</string>
-    <string name="ad_desc">To change the theme, please watch a short ad video. This helps keep the app free for everyone.</string>
-    <string name="ok">Ok</string>
-    <string name="ad">Ad</string>
-    <string name="privacy_policy">Privacy Policy</string>
-    <string name="privacy_desc">Privacy Policy of TaskManager</string>
     <string name="graph_update">Graph update delay</string>
     <string name="flame">Flame</string>
     <string name="leaf">Leaf</string>
@@ -89,9 +80,6 @@
     <string name="git_hash">Git Commit hash</string>
     <string name="build_type">Build Type</string>
     <string name="community">Community</string>
-    <string name="full">Full</string>
-<string name="yes">Yes</string>
-    <string name="no">No</string>
     <string name="copied_to_clipboard">Copied on clipboard</string>
 
     <!-- Process Settings -->
@@ -105,27 +93,9 @@
     <string name="auto_refresh_desc">Auto Refresh Processes</string>
 
     <!-- Pro Version Screen -->
-    <string name="battery_stats">Battery Stats</string>
-    <string name="battery_stats_desc">View charge level, status, and battery health at a glance</string>
-    <string name="network_monitor">Network Monitor</string>
-    <string name="network_monitor_desc">Track data usage and speeds in real time</string>
 
-    <string name="process_pin">Process Pin</string>
-    <string name="process_pin_desc">Pin processes to show them at top</string>
-    <string name="upgrade_to_pro">Upgrade to Pro</string>
-    <string name="help">Help</string>
     <string name="back">Back</string>
     <string name="search">Search</string>
-    <string name="what_you_get">WHAT YOU GET</string>
-    <string name="secure_payment">Secure payment via Google Play</string>
-    <string name="task_manager_uppercase">TASK MANAGER</string>
-<string name="one_time_purchase">One-time purchase</string>
-    <string name="purchase_in_progress">Purchase in progress…</string>
-    <string name="permanent_pro_access">Pay once, permanent pro access.</string>
-    <string name="processing">Processing…</string>
-    <string name="upgrade_now">Upgrade Now</string>
-    <string name="pro_unlocked">Pro Unlocked</string>
-    <string name="thanks_support">Thank you for supporting Task Manager!</string>
 
     <!-- Processes Screen -->
     <string name="sort_by_ram">Sort by RAM</string>
@@ -155,8 +125,6 @@
     <string name="gpu">GPU</string>
 
 
-    <string name="net">NET</string>
-    <string name="bat">BAT</string>
     <string name="not_implemented">This feature is not implemented</string>
 
     <!-- CPU Screen -->
@@ -192,11 +160,8 @@
     <string name="cpu_usage_label">CPU - %s</string>
 
     <!-- Misc -->
-    <string name="please_wait">Please wait</string>
     <string name="ms_unit">%1$dms</string>
 
-    <string name="usage_notif">Usage Notification</string>
-    <string name="usage_notif_Desc">Show a notification to view resource usage in background</string>
 
     <string name="proc_refresh_rate">Refresh interval</string>
     <string name="seconds_unit">%1$ds</string>

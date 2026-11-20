@@ -7,8 +7,6 @@
     <string name="shizuku_not_installed">Shizuku yüklü değil</string>
     <string name="su_not_in_path">su $PATH içinde mevcut değil</string>
     <string name="daemon_not_started">Arka plan programı başlatılamadı</string>
-    <string name="starting_daemon">Arka plan programı başlatılıyor…</string>
-    <string name="apply">Uygula</string>
     <string name="cancel">İptal</string>
     <string name="show_user_app">Kullanıcı uygulamalarını göster</string>
     <string name="show_system_app">Sistem uygulamalarını göster</string>
@@ -19,7 +17,6 @@
     <string name="kill">İşlemi Sonlandır</string>
     <string name="killed">Sonlandırıldı</string>
     <string name="stopped">Durduruldu</string>
-    <string name="kill_fail">Sonlandırma Başarısız</string>
     <string name="kill_proc">Bu işlemi sonlandır</string>
     <string name="loading">Yükleniyor…</string>
     <string name="name">İsim</string>
@@ -41,7 +38,6 @@
     <string name="exec_path">Çalıştırılabilir Dosya Yolu</string>
     <string name="requires_daemon_restart">Değişiklikler bir sonraki yeniden başlatmadan sonra etkili olacaktır</string>
     <string name="daemon_wait">Arka plan programı bağlantısı bekleniyor…</string>
-    <string name="timeout">Zaman aşımı</string>
     <string name="res">Kaynaklar</string>
     <string name="procs">İşlemler</string>
     <string name="copied">Panoya kopyalandı</string>
@@ -50,11 +46,6 @@
     <string name="noob">Bu uygulamanın sistem görevlerini yönetmek için özel izne ihtiyacı var.\nCihazınızda şu anda bu erişim hakkı yok.\nDevam etmek için lütfen:\n\n• Shizuku uygulamasını yükleyip başlatın veya\n• Rootlu bir cihaz kullanın.</string>
     <string name="theme">Tema</string>
     <string name="dynamic_theme">Dinamik Tema</string>
-    <string name="ad_desc">Temayı değiştirmek için lütfen kısa bir reklam videosu izleyin. Bu, uygulamanın herkes için ücretsiz kalmasına yardımcı olur.</string>
-    <string name="ok">Tamam</string>
-    <string name="ad">Reklam</string>
-    <string name="privacy_policy">Gizlilik Politikası</string>
-    <string name="privacy_desc">TaskManager Gizlilik Politikası</string>
     <string name="graph_update">Grafik güncelleme gecikmesi</string>
     <string name="flame">Flame</string>
     <string name="leaf">Leaf</string>

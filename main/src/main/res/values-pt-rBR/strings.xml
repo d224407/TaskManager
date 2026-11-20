@@ -7,8 +7,6 @@
     <string name="shizuku_not_installed">Shizuku não está instalado</string>
     <string name="su_not_in_path">\'su\' não existe ou não está funcionando corretamente</string>
     <string name="daemon_not_started">Falha ao iniciar o daemon</string>
-    <string name="starting_daemon">Iniciando daemon…</string>
-    <string name="apply">Aplicar</string>
     <string name="cancel">Cancelar</string>
     <string name="show_user_app">Mostrar apps do usuário</string>
     <string name="show_system_app">Mostrar apps do sistema</string>
@@ -19,7 +17,6 @@
     <string name="kill">Finalizar Processo</string>
     <string name="killed">Finalizado</string>
     <string name="stopped">Parado</string>
-    <string name="kill_fail">Falha ao Finalizar</string>
     <string name="kill_proc">Matar este processo</string>
     <string name="loading">Carregando…</string>
     <string name="name">Nome</string>
@@ -41,7 +38,6 @@
     <string name="exec_path">Caminho do Executável</string>
     <string name="requires_daemon_restart">As alterações surtirão efeito após a próxima inicialização</string>
     <string name="daemon_wait">Aguardando conexão com o daemon…</string>
-    <string name="timeout">Tempo esgotado</string>
     <string name="res">Recursos</string>
     <string name="procs">Processos</string>
     <string name="copied">Copiado para a área de transferência</string>
@@ -50,11 +46,6 @@
     <string name="noob">Este app precisa de permissões especiais para gerenciar tarefas do sistema.\nSeu dispositivo não possui esse acesso no momento.\nPara continuar, por favor:\n\n• Instale o app Shizuku e inicie-o, ou\n• Use um dispositivo com root.</string>
     <string name="theme">Tema</string>
     <string name="dynamic_theme">Tema Dinâmico</string>
-    <string name="ad_desc">Para alterar o tema, por favor assista a um rápido vídeo de anúncio. Isso ajuda a manter o app gratuito para todos.</string>
-    <string name="ok">OK</string>
-    <string name="ad">Anúncio</string>
-    <string name="privacy_policy">Política de Privacidade</string>
-    <string name="privacy_desc">Política de Privacidade do TaskManager</string>
     <string name="graph_update">Atraso na atualização do gráfico</string>
     <string name="flame">Flame</string>
     <string name="leaf">Leaf</string>
@@ -89,9 +80,6 @@
     <string name="git_hash">Hash do commit do git</string>
     <string name="build_type">Tipo de Compilação</string>
     <string name="community">Comunidade</string>
-    <string name="full">Completo</string>
-<string name="yes">Sim</string>
-    <string name="no">Não</string>
     <string name="copied_to_clipboard">Copiado para a área de transferência</string>
 
     <!-- Process Settings -->
@@ -105,27 +93,9 @@
     <string name="auto_refresh_desc">Atualizar processos automaticamente</string>
 
     <!-- Pro Version Screen -->
-    <string name="battery_stats">Estatísticas da Bateria</string>
-    <string name="battery_stats_desc">Veja o nível de carga, status e integridade da bateria rapidamente</string>
-    <string name="network_monitor">Monitor de Rede</string>
-    <string name="network_monitor_desc">Monitore o uso de dados e as velocidades em tempo real</string>
 
-    <string name="process_pin">Fixar Processo</string>
-    <string name="process_pin_desc">Fixe processos para mostrá-los no topo</string>
-    <string name="upgrade_to_pro">Atualizar para o Pro</string>
-    <string name="help">Ajuda</string>
     <string name="back">Voltar</string>
     <string name="search">Buscar</string>
-    <string name="what_you_get">O QUE VOCÊ GANHA</string>
-    <string name="secure_payment">Pagamento seguro via Google Play</string>
-    <string name="task_manager_uppercase">GERENCIADOR DE TAREFAS</string>
-<string name="one_time_purchase">Compra única</string>
-    <string name="purchase_in_progress">Compra em andamento…</string>
-    <string name="permanent_pro_access">Pague uma vez, tenha acesso Pro permanente.</string>
-    <string name="processing">Processando…</string>
-    <string name="upgrade_now">Atualizar Agora</string>
-    <string name="pro_unlocked">Pro Desbloqueado</string>
-    <string name="thanks_support">Obrigado por apoiar o Task Manager!</string>
 
     <!-- Processes Screen -->
     <string name="sort_by_ram">Ordenar por RAM</string>
@@ -155,8 +125,6 @@
     <string name="gpu">GPU</string>
 
 
-    <string name="net">REDE</string>
-    <string name="bat">BAT</string>
     <string name="not_implemented">Este recurso não foi implementado</string>
 
     <!-- CPU Screen -->
@@ -192,7 +160,6 @@
     <string name="cpu_usage_label">CPU - %s</string>
 
     <!-- Misc -->
-    <string name="please_wait">Por favor, aguarde</string>
     <string name="ms_unit">%1$dms</string>
 
 </resources>

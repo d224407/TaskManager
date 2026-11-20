@@ -7,8 +7,6 @@
     <string name="shizuku_not_installed">Shizuku не установлен</string>
     <string name="su_not_in_path">\'su\' отсутствует или работает некорректно</string>
     <string name="daemon_not_started">Не удалось запустить демон</string>
-    <string name="starting_daemon">Запуск демона…</string>
-    <string name="apply">Применить</string>
     <string name="cancel">Отмена</string>
     <string name="show_user_app">Пользовательские приложения</string>
     <string name="show_system_app">Системные приложения</string>
@@ -19,7 +17,6 @@
     <string name="kill">Убить процесс</string>
     <string name="killed">Убит</string>
     <string name="stopped">Остановлен</string>
-    <string name="kill_fail">Ошибка завершения</string>
     <string name="kill_proc">Завершить этот процесс</string>
     <string name="loading">Загрузка…</string>
     <string name="name">Имя</string>
@@ -41,7 +38,6 @@
     <string name="exec_path">Путь к файлу</string>
     <string name="requires_daemon_restart">Изменения вступят в силу после следующего холодного перезапуска</string>
     <string name="daemon_wait">Ожидание подключения к демону…</string>
-    <string name="timeout">Таймаут</string>
     <string name="res">Ресурсы</string>
     <string name="procs">Процессы</string>
     <string name="copied">Скопировано в буфер обмена</string>
@@ -50,11 +46,6 @@
     <string name="noob">Этому приложению требуются специальные разрешения для управления системными задачами.\nСейчас у вашего устройства нет такого доступа.\nЧтобы продолжить:\n\n• Установите и запустите приложение Shizuku, либо\n• Используйте устройство с Root-правами.</string>
     <string name="theme">Тема</string>
     <string name="dynamic_theme">Динамическая тема</string>
-    <string name="ad_desc">Чтобы изменить тему, пожалуйста, посмотрите короткое рекламное видео. Это помогает оставлять приложение бесплатным для всех.</string>
-    <string name="ok">Ок</string>
-    <string name="ad">Реклама</string>
-    <string name="privacy_policy">Политика конфиденциальности</string>
-    <string name="privacy_desc">Политика конфиденциальности TaskManager</string>
     <string name="graph_update">Задержка обновления графика</string>
     <string name="flame">Flame</string>
     <string name="leaf">Leaf</string>
@@ -87,9 +78,6 @@
     <string name="git_hash">Хэш коммита Git</string>
     <string name="build_type">Тип сборки</string>
     <string name="community">Сообщество</string>
-    <string name="full">Полная</string>
-<string name="yes">Да</string>
-    <string name="no">Нет</string>
     <string name="copied_to_clipboard">Скопировано в буфер обмена</string>
 
     <string name="pull_to_refresh">Обновление жестом</string>
@@ -101,27 +89,9 @@
     <string name="auto_refresh">Автообновление</string>
     <string name="auto_refresh_desc">Автоматически обновлять список процессов</string>
 
-    <string name="battery_stats">Статистика батареи</string>
-    <string name="battery_stats_desc">Быстрый просмотр уровня заряда, статуса и здоровья аккумулятора</string>
-    <string name="network_monitor">Мониторинг сети</string>
-    <string name="network_monitor_desc">Отслеживание использования данных и скорости в реальном времени</string>
 
-    <string name="process_pin">Закрепление процессов</string>
-    <string name="process_pin_desc">Закрепление процессов для отображения вверху списка</string>
-    <string name="upgrade_to_pro">Перейти на Pro</string>
-    <string name="help">Справка</string>
     <string name="back">Назад</string>
     <string name="search">Поиск</string>
-    <string name="what_you_get">ЧТО ВЫ ПОЛУЧИТЕ</string>
-    <string name="secure_payment">Безопасная оплата через Google Play</string>
-    <string name="task_manager_uppercase">ДИСПЕТЧЕР ЗАДАЧ</string>
-<string name="one_time_purchase">Разовая покупка</string>
-    <string name="purchase_in_progress">Выполняется покупка…</string>
-    <string name="permanent_pro_access">Платите один раз — Pro-доступ навсегда.</string>
-    <string name="processing">Обработка…</string>
-    <string name="upgrade_now">Активировать Pro</string>
-    <string name="pro_unlocked">Режим Pro разблокирован</string>
-    <string name="thanks_support">Спасибо за поддержку Task Manager!</string>
 
     <string name="sort_by_ram">Сортировка по RAM</string>
     <string name="sort_by_cpu">Сортировка по CPU</string>
@@ -148,8 +118,6 @@
     <string name="gpu">ГП</string>
 
 
-    <string name="net">СЕТЬ</string>
-    <string name="bat">АКБ</string>
     <string name="not_implemented">Функция еще не реализована</string>
 
     <string name="processor_info">Информация о процессоре</string>
@@ -181,7 +149,6 @@
     <string name="gpu_usage_label">GPU — %s</string>
     <string name="cpu_usage_label">CPU — %s</string>
 
-    <string name="please_wait">Пожалуйста, подождите</string>
     <string name="ms_unit">%1$d мс</string>
 
 </resources>

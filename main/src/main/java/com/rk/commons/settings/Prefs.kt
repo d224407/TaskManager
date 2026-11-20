@@ -16,8 +16,3 @@ class StringPref(private val key: String? = null, private val default: String) {
     operator fun getValue(thisRef: Any?, property: KProperty<*>) = Preference.getString(key ?: property.name, default)
     operator fun setValue(thisRef: Any?, property: KProperty<*>, value: String) = Preference.setString(key ?: property.name, value)
 }
-
-class LongPref(private val key: String? = null, private val default: Long) {
-    operator fun getValue(thisRef: Any?, property: KProperty<*>) = Preference.getLong(key ?: property.name, default)
-    operator fun setValue(thisRef: Any?, property: KProperty<*>, value: Long) = Preference.setLong(key ?: property.name, value)
-}
