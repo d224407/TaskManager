@@ -162,4 +162,6 @@
     <!-- Misc -->
     <string name="ms_unit">%1$dms</string>
 
+    <string name="sort_by_disk_write">Ordenar por gravação em disco</string>
+    <string name="disk_write">Gravação em disco</string>
 </resources>

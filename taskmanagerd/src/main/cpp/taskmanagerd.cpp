@@ -43,7 +43,8 @@ static bool isCpuThermalType(const std::string& type) {
     std::string t = toLower(type);
     return (t.find("cpu") != std::string::npos) ||
            (t.find("soc") != std::string::npos) ||
-           (t.find("ap")  != std::string::npos) ||
+           (t.find("apss") != std::string::npos) ||
+           (t.find("apc") != std::string::npos) ||
            (t.find("cluster") != std::string::npos);
 }
 
@@ -168,7 +169,7 @@ bool send_json(const json &j) {
 struct CpuStat {
     long user, nice, system, idle, iowait, irq, softirq, steal;
     long total() const { return user + nice + system + idle + iowait + irq + softirq + steal; }
-    long active() const { return total() - idle; }
+    long active() const { return total() - idle - iowait; } // iowait counts as idle
 };
 
 CpuStat readCpuStat() {
@@ -241,6 +242,8 @@ struct Proc {
     long virtualMemoryKb;
     std::string cgroup;
     std::string executablePath;
+    long long diskWriteBytes;
+    float diskWriteRate;
 };
 
 long getSystemUptime() {
@@ -306,6 +309,42 @@ float calculateProcessCpuUsage(int pid, CpuCache &cache) {
     float usage = (float)std::clamp(dTicks * 100.0 / (double)dTotal, 0.0, 100.0);
     prev = {ticks, starttime, g_totalJiffies, usage};
     return usage;
+}
+
+struct IoSample {
+    long long bytes;
+    long long startTime;
+    std::chrono::steady_clock::time_point time;
+    float rate;
+};
+static std::unordered_map<int, IoSample> ioCache;
+
+// Bytes written to storage by the process (needs access to /proc/<pid>/io)
+static long long readWriteBytes(int pid) {
+    std::ifstream f("/proc/" + std::to_string(pid) + "/io");
+    if (!f.is_open()) return -1;
+    std::string line;
+    while (std::getline(f, line)) {
+        if (line.compare(0, 12, "write_bytes:") == 0) {
+            try { return std::stoll(line.substr(12)); } catch (...) { return -1; }
+        }
+    }
+    return -1;
+}
+
+static float diskWriteRate(int pid, long long startTime, long long bytes) {
+    if (bytes < 0) { ioCache.erase(pid); return 0.0f; }
+    auto now = std::chrono::steady_clock::now();
+    auto it = ioCache.find(pid);
+    if (it == ioCache.end() || it->second.startTime != startTime || bytes < it->second.bytes) {
+        ioCache[pid] = {bytes, startTime, now, 0.0f};
+        return 0.0f;
+    }
+    double dt = std::chrono::duration<double>(now - it->second.time).count();
+    if (dt < 0.5) return it->second.rate;
+    float rate = (float)((double)(bytes - it->second.bytes) / dt);
+    it->second = {bytes, startTime, now, rate};
+    return rate;
 }
 
 bool isForegroundProcess(int pid) {
@@ -376,6 +415,9 @@ Proc readProc(int pid) {
     p.isForeground = isForegroundProcess(pid);
     p.cgroup = getCgroup(pid);
     p.executablePath = getExecutablePath(pid);
+    long long wb = readWriteBytes(pid);
+    p.diskWriteBytes = std::max(0LL, wb);
+    p.diskWriteRate = diskWriteRate(pid, p.startTime, wb);
     return p;
 }
 
@@ -386,7 +428,8 @@ json procToJson(const Proc &p) {
         {"memoryUsageKb", p.memoryUsageKb}, {"cmdLine", p.cmdLine}, {"state", p.state},
         {"threads", p.threads}, {"startTime", p.startTime}, {"elapsedTime", p.elapsedTime},
         {"residentSetSizeKb", p.residentSetSizeKb}, {"virtualMemoryKb", p.virtualMemoryKb},
-        {"cgroup", p.cgroup}, {"executablePath", p.executablePath}
+        {"cgroup", p.cgroup}, {"executablePath", p.executablePath},
+        {"diskWriteBytes", p.diskWriteBytes}, {"diskWriteRate", p.diskWriteRate}
     };
 }
 
@@ -399,6 +442,10 @@ std::vector<Proc> collectProcs() {
     // Drop samples of processes that are gone
     for (auto it = listCpuCache.begin(); it != listCpuCache.end();) {
         if (std::find(pids.begin(), pids.end(), it->first) == pids.end()) it = listCpuCache.erase(it);
+        else ++it;
+    }
+    for (auto it = ioCache.begin(); it != ioCache.end();) {
+        if (std::find(pids.begin(), pids.end(), it->first) == pids.end()) it = ioCache.erase(it);
         else ++it;
     }
     return procs;

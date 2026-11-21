@@ -151,4 +151,6 @@
 
     <string name="ms_unit">%1$d мс</string>
 
+    <string name="sort_by_disk_write">Сортировка по записи на диск</string>
+    <string name="disk_write">Запись на диск</string>
 </resources>

@@ -33,7 +33,7 @@ private var gpuUsage by mutableIntStateOf(-1)
 
 suspend fun updateGpuGraph(usage: Int) {
     gpuUsage = usage
-    gpuGraphHandler.update(usage) {
+    gpuGraphHandler.update(usage.coerceAtLeast(0)) {
         selectedscreen.intValue == 0 && navControllerRef.get()?.currentDestination?.route == SettingsRoutes.Home.route
     }
 }

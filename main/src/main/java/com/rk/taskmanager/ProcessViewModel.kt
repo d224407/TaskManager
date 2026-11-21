@@ -54,7 +54,7 @@ class ProcessViewModel : ViewModel() {
 
     enum class Sortby(val id: Int){
         //edit default value in settings.kt of 0
-        Ram(0),Cpu(1),A_z(2)
+        Ram(0),Cpu(1),A_z(2),DiskWrite(3)
     }
     private val _sortBy = MutableStateFlow(Settings.sortby)
 
@@ -101,10 +101,11 @@ class ProcessViewModel : ViewModel() {
             Sortby.Ram.id -> filtered.sortedByDescending { it.proc.memoryUsageKb }
             Sortby.Cpu.id -> filtered.sortedByDescending { it.proc.cpuUsage }
             Sortby.A_z.id -> filtered.sortedBy { it.name.lowercase() }
+            Sortby.DiskWrite.id -> filtered.sortedByDescending { it.proc.diskWriteRate }
             else -> filtered
         }
 
-        val fullSort = sorted.sortedByDescending { it.proc.cmdLine in pinned }
+        val fullSort = sorted.sortedByDescending { it.proc.cmdLine.isNotEmpty() && it.proc.cmdLine in pinned }
 
         val key = Triple(sortBy, filters, pinned)
         val result = if (!Settings.procStableOrder || forceResort || key != lastSortKey) {
@@ -170,6 +171,7 @@ class ProcessViewModel : ViewModel() {
 
     fun togglePin(uiModel: ProcessUiModel) {
         val key = uiModel.proc.cmdLine
+        if (key.isEmpty()) return
         val pinned = Settings.pinnedProcesses.toMutableSet()
         val nowPinned = pinned.add(key)
         if (!nowPinned) pinned.remove(key)
@@ -204,7 +206,9 @@ class ProcessViewModel : ViewModel() {
         val residentSetSizeKb: Long,
         val virtualMemoryKb: Long,
         val cgroup: String,
-        val executablePath: String
+        val executablePath: String,
+        val diskWriteBytes: Long = 0L,
+        val diskWriteRate: Float = 0f
     )
 
     private val appInfoCache = ConcurrentHashMap<String, AppInfoCache>()
@@ -252,7 +256,9 @@ class ProcessViewModel : ViewModel() {
                                     residentSetSizeKb = obj.optLong("residentSetSizeKb", 0L),
                                     virtualMemoryKb = obj.optLong("virtualMemoryKb", 0L),
                                     cgroup = obj.optString("cgroup", ""),
-                                    executablePath = obj.optString("executablePath", "")
+                                    executablePath = obj.optString("executablePath", ""),
+                                    diskWriteBytes = obj.optLong("diskWriteBytes", 0L),
+                                    diskWriteRate = obj.optDouble("diskWriteRate", 0.0).toFloat()
                                 )
                             )
                         }
@@ -262,6 +268,10 @@ class ProcessViewModel : ViewModel() {
                         val uiList = newProcesses.map { proc ->
                             async(Dispatchers.IO) {
                                 val isPinned = pinnedSet.contains(proc.cmdLine)
+                                // Empty cmdline (kernel threads) must not share one cache entry
+                                if (proc.cmdLine.isEmpty()) {
+                                    return@async ProcessUiModel(proc, proc.name, null, false, false, isApp = false, isPinned = mutableStateOf(false))
+                                }
                                 val cached = appInfoCache[proc.cmdLine]
                                 if (cached != null) {
                                     ProcessUiModel(proc, cached.name, cached.icon, cached.isSystem, cached.isApp && !cached.isSystem, isApp = cached.isApp, isPinned = mutableStateOf(isPinned))

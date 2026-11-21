@@ -161,4 +161,6 @@
 
     <!-- Misc -->
     <string name="ms_unit">%1$dms</string>
+    <string name="sort_by_disk_write">以磁盘写入排序</string>
+    <string name="disk_write">磁盘写入</string>
 </resources>

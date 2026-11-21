@@ -80,7 +80,7 @@ fun CPU(modifier: Modifier = Modifier, viewModel: ProcessViewModel) {
         while (isActive) {
             send_daemon_messages.emit(JSONObject().apply { put("cmd", "CTEMP_PING") }.toString())
             uptime = CpuInfoReader.getUptimeFormatted()
-            cpuInfo = CpuInfoReader.read()
+            cpuInfo = kotlinx.coroutines.withContext(Dispatchers.IO) { CpuInfoReader.read() }
             delay(2000)
         }
     }

@@ -48,6 +48,7 @@ import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
@@ -227,7 +228,7 @@ suspend fun killProc(proc: ProcessViewModel.Process): Boolean {
         }.getOrDefault(false)
     }
 
-    com.rk.commons.settings.Settings.kills++
+    if (killResult) com.rk.commons.settings.Settings.kills++
     return killResult
 }
 
@@ -249,7 +250,7 @@ fun ProcessInfo(
 
     val username = remember { mutableStateOf(strings.unknown.getString()) }
     val scope = rememberCoroutineScope()
-    val cpuUsage = remember { mutableIntStateOf(-1) }
+    val cpuUsage = remember { mutableFloatStateOf(-1f) }
 
     LaunchedEffect(proc) {
         username.value = getUsernameFromUid(proc?.proc?.uid!!) ?: proc?.proc?.uid.toString()
@@ -397,7 +398,7 @@ fun ProcessInfo(
                             try {
                                 val json = JSONObject(message)
                                 if (json.optString("type") == "PROCESS_CPU_USAGE") {
-                                    cpuUsage.intValue = json.optInt("usage", -1)
+                                    cpuUsage.floatValue = json.optDouble("usage", -1.0).toFloat()
                                 }
                             } catch (e: Exception) {}
                         }
@@ -416,11 +417,7 @@ fun ProcessInfo(
 
                     TextCard(
                         text = stringResource(strings.cpu_usage),
-                        description = (if (cpuUsage.intValue == -1) {
-                            proc!!.proc.cpuUsage.roundToInt().toString()
-                        } else {
-                            cpuUsage.intValue
-                        }).toString() + "% (${strings.estimated.getString()})"
+                        description = String.format(java.util.Locale.US, "%.1f", if (cpuUsage.floatValue < 0f) proc!!.proc.cpuUsage else cpuUsage.floatValue) + "% (${strings.estimated.getString()})"
                     )
                     TextCard(
                         text = stringResource(strings.is_foreground),
@@ -428,7 +425,7 @@ fun ProcessInfo(
                     )
 
                     fun formatSize(kb: Long): String {
-                        return if (kb >= 1000) {
+                        return if (kb >= 1024) {
                             val mb = kb / 1024f
                             String.format(java.util.Locale.US, "%.2f MB", mb)
                         } else {
@@ -449,6 +446,11 @@ fun ProcessInfo(
                     }
 
 
+                    TextCard(
+                        text = stringResource(strings.disk_write),
+                        description = formatSize(proc!!.proc.diskWriteBytes / 1024) + " (" +
+                            String.format(java.util.Locale.US, "%.1f", proc!!.proc.diskWriteRate / 1024f) + " KB/s)"
+                    )
                     TextCard(
                         text = stringResource(strings.niceness),
                         description = "${proc!!.proc.nice}"
@@ -486,7 +488,7 @@ fun ProcessInfo(
                         description = elapsed
                     )
 
-                    if (proc!!.proc.executablePath != "null") {
+                    if (proc!!.proc.executablePath.isNotEmpty()) {
                         TextCard(
                             text = stringResource(strings.exec_path),
                             description = proc!!.proc.executablePath

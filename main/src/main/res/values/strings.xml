@@ -172,4 +172,6 @@
     <string name="up_to_date">You are on the latest version</string>
     <string name="update_available">Version %1$s is available, tap to download</string>
     <string name="update_failed">Could not check for updates</string>
+    <string name="sort_by_disk_write">Sort by Disk write</string>
+    <string name="disk_write">Disk write</string>
 </resources>

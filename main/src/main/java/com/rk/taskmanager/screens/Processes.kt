@@ -176,6 +176,14 @@ fun Processes(
                     viewModel.setSortBy(ProcessViewModel.Sortby.A_z)
                 })
 
+                SettingsToggle(default = false, showSwitch = false, startWidget = {
+                    RadioButton(selected = sortBy == ProcessViewModel.Sortby.DiskWrite.id, onClick = {
+                        viewModel.setSortBy(ProcessViewModel.Sortby.DiskWrite)
+                    })
+                }, label = stringResource(strings.sort_by_disk_write), sideEffect = {
+                    viewModel.setSortBy(ProcessViewModel.Sortby.DiskWrite)
+                })
+
 
 
             }
@@ -251,6 +259,12 @@ fun Processes(
 }
 
 const val textLimit = 40
+
+private fun formatRate(bytesPerSec: Double): String = when {
+    bytesPerSec >= 1024 * 1024 -> String.format(Locale.ENGLISH, "%.1f MB/s", bytesPerSec / (1024 * 1024))
+    bytesPerSec >= 1024 -> String.format(Locale.ENGLISH, "%.0f KB/s", bytesPerSec / 1024)
+    else -> "0 KB/s"
+}
 
 @Composable
 fun ProcessItem(
@@ -345,6 +359,14 @@ fun ProcessItem(
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
+
+                Spacer(modifier = Modifier.width(6.dp))
+
+                // Disk write section
+                Text(
+                    text = "W " + formatRate(uiProc.proc.diskWriteRate.toDouble()),
+                    style = MaterialTheme.typography.bodySmall
+                )
             }
 
         },
