@@ -15,10 +15,8 @@ val gitCommitHash = gitOutput("rev-parse", "--short=8", "HEAD")
 val fullGitCommitHash = gitOutput("rev-parse", "HEAD")
 val gitCommitDate = gitOutput("show", "-s", "--format=%cI", "HEAD")
 
-// owner/repo used by the in-app update check (CI env, then git remote, then fallback)
-val githubRepo = System.getenv("GITHUB_REPOSITORY")
-    ?: Regex("""github\.com[/:]([^/]+/[^/]+?)(?:\.git)?$""").find(gitOutput("config", "--get", "remote.origin.url"))?.groupValues?.get(1)
-    ?: "d224407/TaskManager"
+// owner/repo used by the in-app update check
+val githubRepo = "d224407/TaskManager"
 
 
 android {
