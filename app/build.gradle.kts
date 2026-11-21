@@ -1,14 +1,14 @@
 import java.util.Properties
 
-// Set -Pfdroid=true (or env FDROID=true) for F-Droid/IzzyOnDroid builds
-val isIzzyOrFdroid: Boolean =
-    providers.gradleProperty("fdroid").orNull == "true" ||
-        providers.environmentVariable("FDROID").orNull == "true"
-
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.compose.compiler)
 }
+
+// Set -Pfdroid=true (or env FDROID=true) for F-Droid/IzzyOnDroid builds
+val isIzzyOrFdroid: Boolean =
+    providers.gradleProperty("fdroid").orNull == "true" ||
+        providers.environmentVariable("FDROID").orNull == "true"
 
 
 android {
@@ -74,8 +74,8 @@ android {
         targetSdk = 37
 
         //versioning
-        versionCode = 52
-        versionName = "1.5.2"
+        versionCode = providers.gradleProperty("appVersionCode").orNull?.toIntOrNull() ?: 52
+        versionName = providers.gradleProperty("appVersionName").orNull ?: "1.5.2"
         vectorDrawables {
             useSupportLibrary = true
         }
