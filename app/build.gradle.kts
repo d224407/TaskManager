@@ -6,7 +6,7 @@ plugins {
 }
 
 // Bumped automatically by release-please, do not edit by hand
-val appVersion = "1.5.2" // x-release-please-version
+val appVersion = "1.6.0" // x-release-please-version
 // MAJOR.MINOR.PATCH -> MAJOR*10000 + MINOR*100 + PATCH, always grows with the version
 val appVersionCode: Int = appVersion.split(".").map { it.toInt() }.let { (major, minor, patch) -> major * 10000 + minor * 100 + patch }
 
