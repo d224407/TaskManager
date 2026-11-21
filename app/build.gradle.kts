@@ -5,6 +5,11 @@ plugins {
     alias(libs.plugins.compose.compiler)
 }
 
+// Bumped automatically by release-please, do not edit by hand
+val appVersion = "1.5.2" // x-release-please-version
+// MAJOR.MINOR.PATCH -> MAJOR*10000 + MINOR*100 + PATCH, always grows with the version
+val appVersionCode: Int = appVersion.split(".").map { it.toInt() }.let { (major, minor, patch) -> major * 10000 + minor * 100 + patch }
+
 // Set -Pfdroid=true (or env FDROID=true) for F-Droid/IzzyOnDroid builds
 val isIzzyOrFdroid: Boolean =
     providers.gradleProperty("fdroid").orNull == "true" ||
@@ -74,8 +79,8 @@ android {
         targetSdk = 37
 
         //versioning
-        versionCode = providers.gradleProperty("appVersionCode").orNull?.toIntOrNull() ?: 52
-        versionName = providers.gradleProperty("appVersionName").orNull ?: "1.5.2"
+        versionCode = appVersionCode
+        versionName = appVersion
         vectorDrawables {
             useSupportLibrary = true
         }

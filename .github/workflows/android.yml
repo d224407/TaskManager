@@ -10,14 +10,32 @@ on:
 
 permissions:
   contents: write
+  pull-requests: write
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
+  # Opens/updates the "Release x.y.z" PR; merging it creates the tag and GitHub release
+  release-please:
+    name: Release Please
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.rp.outputs.release_created }}
+      tag_name: ${{ steps.rp.outputs.tag_name }}
+    steps:
+      - id: rp
+        uses: googleapis/release-please-action@v5
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
   build-release:
     name: Build Release
+    needs: release-please
+    if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
     timeout-minutes: 45
     env:
@@ -49,22 +67,8 @@ jobs:
       - name: Set Commit Hash
         run: echo "COMMIT_HASH=$(git rev-parse --short HEAD)" >> "$GITHUB_ENV"
 
-      # Never overwrite a published release: bump the patch number until the tag is free
-      - name: Compute version
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          BASE=$(grep -oP 'versionName = providers.*\?: "\K[^"]+' app/build.gradle.kts | head -1)
-          CODE=$(grep -oP 'versionCode = providers.*\?: \K[0-9]+' app/build.gradle.kts | head -1)
-          MAJOR=${BASE%%.*}; REST=${BASE#*.}; MINOR=${REST%%.*}; PATCH=${REST#*.}
-          while gh release view "v${MAJOR}.${MINOR}.${PATCH}" >/dev/null 2>&1; do
-            PATCH=$((PATCH + 1)); CODE=$((CODE + 1))
-          done
-          echo "APP_VERSION=${MAJOR}.${MINOR}.${PATCH}" >> "$GITHUB_ENV"
-          echo "APP_VERSION_CODE=${CODE}" >> "$GITHUB_ENV"
-
       - name: Build with Gradle
-        run: ./gradlew assembleRelease -PappVersionName="$APP_VERSION" -PappVersionCode="$APP_VERSION_CODE" && mv app/build/outputs/apk/release/*.apk "app/taskmanager-${COMMIT_HASH}.apk"
+        run: ./gradlew assembleRelease && mv app/build/outputs/apk/release/*.apk "app/taskmanager-${COMMIT_HASH}.apk"
         env:
           KEYSTORE_FILE: /tmp/xed.keystore
           KEYSTORE_PASSWORD: ${{ secrets.STOREPASSWORD }}
@@ -77,16 +81,16 @@ jobs:
           name: TaskManager-Release
           path: app/taskmanager-${{ env.COMMIT_HASH }}.apk
 
-      # Only properly signed builds are published, otherwise updates would fail to install
-      - name: Publish release
-        if: ${{ env.HAS_KEYSTORE == 'true' }}
+      # Only properly signed builds are attached, otherwise updates would fail to install
+      - name: Attach APK to release
+        if: ${{ needs.release-please.outputs.release_created == 'true' && env.HAS_KEYSTORE == 'true' }}
         env:
           GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.release-please.outputs.tag_name }}
         run: |
-          TAG="v${APP_VERSION}"
           ASSET="app/TaskManager-${TAG}.apk"
           cp "app/taskmanager-${COMMIT_HASH}.apk" "$ASSET"
-          gh release create "$TAG" "$ASSET" --target "$GITHUB_SHA" --title "TaskManager ${TAG}" --generate-notes
+          gh release upload "$TAG" "$ASSET"
 
       - name: Delete keystore
         if: always()
