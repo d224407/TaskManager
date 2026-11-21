@@ -1,5 +1,10 @@
 import java.util.Properties
 
+// Set -Pfdroid=true (or env FDROID=true) for F-Droid/IzzyOnDroid builds
+val isIzzyOrFdroid: Boolean =
+    providers.gradleProperty("fdroid").orNull == "true" ||
+        providers.environmentVariable("FDROID").orNull == "true"
+
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.compose.compiler)
