@@ -1,0 +1,16 @@
+{
+  "branches": ["main"],
+  "tagFormat": "v${version}",
+  "plugins": [
+    "@semantic-release/commit-analyzer",
+    "@semantic-release/release-notes-generator",
+    ["@semantic-release/exec", {
+      "prepareCmd": "sed -i 's/^val appVersion = \"[^\"]*\"/val appVersion = \"${nextRelease.version}\"/' app/build.gradle.kts"
+    }],
+    ["@semantic-release/git", {
+      "assets": ["app/build.gradle.kts"],
+      "message": "chore(release): ${nextRelease.version} [skip ci]"
+    }],
+    "@semantic-release/github"
+  ]
+}
